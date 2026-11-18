@@ -75,6 +75,40 @@
     if (!response.ok) throw new Error(data.error_description || data.msg || data.error || data.message || `Errore HTTP ${response.status}`);
     return data;
   }
+  function vapidToBytes(base64) {
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    const raw = atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(raw, (character) => character.charCodeAt(0));
+  }
+  $('#enableNotifications')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget; const status = $('#pushStatus');
+    if (!session) { status.textContent = 'Accedi come amministratore prima di attivare le notifiche.'; return; }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) { status.textContent = 'Le notifiche Push non sono supportate su questo dispositivo/browser.'; return; }
+    button.disabled = true; status.textContent = 'Attivazione notifiche in corso…';
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') throw new Error('Permesso notifiche non concesso.');
+      const registration = await navigator.serviceWorker.register('./vertex-sw.js');
+      const keyData = await api('/functions/v1/vertex-push', { action: 'public_key' });
+      if (!keyData.publicKey) throw new Error('Chiave pubblica Push non disponibile.');
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidToBytes(keyData.publicKey) });
+      const result = await api('/functions/v1/vertex-push', { action: 'subscribe', subscription: subscription.toJSON() });
+      if (!result.success) throw new Error('Registrazione dispositivo non riuscita.');
+      status.textContent = '✅ Questo dispositivo è registrato per ricevere le notifiche.';
+    } catch (error) { status.textContent = `Notifiche non attivate: ${error.message}`; }
+    finally { button.disabled = false; }
+  });
+  $('#testPushNotification')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget; const status = $('#pushStatus');
+    if (!session) { status.textContent = 'Accedi come amministratore per inviare una prova.'; return; }
+    button.disabled = true; status.textContent = 'Invio notifica di prova…';
+    try {
+      const result = await api('/functions/v1/vertex-push-send', { action: 'test' });
+      status.textContent = `Prova completata · Inviate: ${result.sent ?? 0} · Non inviate: ${result.failed ?? 0}`;
+    } catch (error) { status.textContent = `Prova non riuscita: ${error.message}`; }
+    finally { button.disabled = false; }
+  });
   const romeDay = (value) => dayFormat.format(new Date(value));
   const bookingTime = (value) => new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(value));
   function currentMonthKey() { return `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, '0')}`; }

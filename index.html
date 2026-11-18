@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#11110f">
   <title>VERTEX | Barber Manager</title>
-  <link rel="stylesheet" href="vertex-apex.css?v=6">
+  <link rel="stylesheet" href="vertex-apex.css?v=7">
 </head>
 <body>
   <div class="app-shell">
     <aside class="rail" aria-label="Navigazione principale">
-      <a class="brand-mark" href="#home" aria-label="VERTEX home"><span>V</span><i>✦</i></a>
+      <a class="brand-mark" href="#home" aria-label="VERTEX HAMMAMI"><img class="brand-logo" src="logo.jpg" alt="VERTEX HAMMAMI"></a>
       <button class="rail-link selected" data-view="agenda" aria-label="Agenda" title="Agenda">▦</button>
       <button class="rail-link" data-view="clients" aria-label="Clienti" title="Clienti">♙</button>
       <button class="rail-link" data-view="blocks" aria-label="Orari bloccati" title="Orari bloccati">◷</button>
@@ -24,10 +24,11 @@
         <div class="top-actions"><span class="live-label"><b></b> VERTEX</span><button class="avatar" id="logoutButton" hidden>Esci</button></div>
       </header>
 
-      <section id="loginView" class="login-wrap"><div class="login-card"><div class="login-emblem">V</div><p class="owner-name">MOEZ</p><p class="eyebrow">VERTEX HAMMAMI</p><h2>Accesso amministratore</h2><p class="muted">Entra nell’area riservata per gestire il negozio.</p><form id="loginForm"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" required><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="gold-button login-submit" id="loginButton" type="submit">Accedi <span>→</span></button></form><p id="loginMessage" class="form-message" role="status" hidden></p></div></section>
+      <section id="loginView" class="login-wrap"><div class="login-card"><img class="login-emblem" src="logo.jpg" alt="VERTEX HAMMAMI"><p class="owner-name">MOEZ</p><p class="eyebrow">VERTEX HAMMAMI</p><h2>Accesso amministratore</h2><p class="muted">Entra nell’area riservata per gestire il negozio.</p><form id="loginForm"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" required><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="gold-button login-submit" id="loginButton" type="submit">Accedi <span>→</span></button></form><p id="loginMessage" class="form-message" role="status" hidden></p></div></section>
 
       <section id="dashboardView" hidden>
       <div id="appMessage" class="app-message" role="status" hidden></div>
+      <section class="panel notification-panel"><div><p class="eyebrow">AVVISI</p><h2>Notifiche appuntamenti</h2><p class="muted" id="pushStatus">Attiva le notifiche su questo dispositivo per ricevere gli avvisi.</p></div><div class="booking-actions"><button class="booking-action" id="enableNotifications" type="button">🔔 Attiva notifiche</button><button class="booking-action secondary" id="testPushNotification" type="button">Invia prova</button></div></section>
       <section id="agendaView" class="view">
         <div class="welcome-row"><div><p class="eyebrow">PANORAMICA</p><h2>Il tuo negozio, sotto controllo.</h2><p class="muted">Una vista chiara della giornata e del mese.</p></div><button class="gold-button" id="todayButton">Oggi <span>↗</span></button></div>
         <div class="stats-grid">
@@ -62,6 +63,6 @@
   </div>
   <nav class="mobile-nav" id="mobileNav" aria-label="Navigazione mobile" hidden><button class="selected" data-view="agenda"><span>▦</span>Agenda</button><button data-view="clients"><span>♙</span>Clienti</button><button data-view="blocks"><span>◷</span>Blocchi</button><button data-view="team"><span>♧</span>Barbieri</button></nav>
   <dialog id="editDialog" class="edit-dialog"><form id="editForm"><div class="panel-heading"><div><p class="eyebrow">APPUNTAMENTO</p><h2>Modifica dati</h2></div><button id="closeEdit" class="refresh-button" type="button">×</button></div><label>Nome cliente<input id="editName" required maxlength="120"></label><label>Telefono<input id="editPhone" required maxlength="30"></label><label>Servizio<input id="editService" required maxlength="120"></label><div class="edit-grid"><label>Prezzo (€)<input id="editPrice" type="number" min="0" max="1000" step="0.01" required></label><label>Durata (minuti)<input id="editDuration" type="number" min="5" max="240" required></label><label>Data<input id="editDate" type="date" required></label><label>Ora<input id="editTime" type="time" required></label></div><div class="booking-actions"><button class="gold-button" type="submit">Salva modifica</button><button id="cancelEdit" class="booking-action secondary" type="button">Annulla</button></div></form></dialog>
-  <script src="vertex-apex.js?v=6"></script>
+  <script src="vertex-apex.js?v=7"></script>
 </body>
 </html>
