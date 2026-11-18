@@ -22,6 +22,13 @@
   let busy = false;
   let editingBookingId = '';
 
+  function isBlockedTime(item) {
+    const status = String(item.status || '').trim().toLowerCase();
+    const customerName = String(item.customer_name || '').trim().toLocaleUpperCase('it-IT');
+    const serviceName = String(item.service_name || '').trim().toLocaleLowerCase('it-IT');
+    return status === 'blocked' || customerName === 'BLOCCATO' || /^pausa(?:\b|\s|·)/i.test(serviceName);
+  }
+
   function readSession() {
     try { const value = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); return value?.access_token && value?.refresh_token ? value : null; }
     catch { localStorage.removeItem(SESSION_KEY); return null; }
@@ -115,20 +122,21 @@
     button.disabled = busy; button.addEventListener('click', action); return button;
   }
   function renderBookingCard(booking) {
-    const card = document.createElement('article'); card.className = `booking-card ${booking.status === 'blocked' ? 'blocked' : ''}`;
+    const blocked = isBlockedTime(booking);
+    const card = document.createElement('article'); card.className = `booking-card ${blocked ? 'blocked' : ''}`;
     const heading = document.createElement('div'); heading.className = 'booking-heading';
-    const name = document.createElement('strong'); name.textContent = booking.status === 'blocked' ? 'Orario bloccato' : booking.customer_name || 'Cliente';
+    const name = document.createElement('strong'); name.textContent = blocked ? 'Orario bloccato' : booking.customer_name || 'Cliente';
     const time = document.createElement('span'); time.textContent = `${bookingTime(booking.starts_at)}${booking.ends_at ? ` – ${bookingTime(booking.ends_at)}` : ''}`;
     heading.append(name, time); card.append(heading);
-    const details = document.createElement('p'); details.className = 'booking-details'; details.textContent = booking.status === 'blocked' ? (booking.service_name || 'Blocco orario') : `${booking.service_name || 'Servizio'} · ${booking.customer_phone || 'Nessun telefono'}`; card.append(details);
-    const status = document.createElement('span'); status.className = `booking-status ${booking.status || ''}`; status.textContent = labels[booking.status] || booking.status || '—'; card.append(status);
+    const details = document.createElement('p'); details.className = 'booking-details'; details.textContent = blocked ? (booking.service_name || 'Blocco orario') : `${booking.service_name || 'Servizio'} · ${booking.customer_phone || 'Nessun telefono'}`; card.append(details);
+    const status = document.createElement('span'); status.className = `booking-status ${blocked ? 'blocked' : booking.status || ''}`; status.textContent = blocked ? 'Orario bloccato' : labels[booking.status] || booking.status || '—'; card.append(status);
     const actions = document.createElement('div'); actions.className = 'booking-actions';
-    if (booking.status !== 'blocked' && booking.status !== 'unblocked') actions.append(actionButton('Modifica', () => openEdit(booking), 'edit-action'));
-    if (booking.status === 'pending') {
+    if (!blocked && booking.status !== 'unblocked') actions.append(actionButton('Modifica', () => openEdit(booking), 'edit-action'));
+    if (!blocked && booking.status === 'pending') {
       actions.append(actionButton('Conferma', () => changeStatus(booking, 'confirmed')), actionButton('Rifiuta', () => changeStatus(booking, 'rejected'), 'danger'));
     }
-    if (booking.status === 'confirmed') actions.append(actionButton('Annulla', () => changeStatus(booking, 'cancelled'), 'secondary'));
-    if (booking.status === 'blocked') actions.append(actionButton('Sblocca', () => unblockTime(booking), 'secondary'));
+    if (!blocked && booking.status === 'confirmed') actions.append(actionButton('Annulla', () => changeStatus(booking, 'cancelled'), 'secondary'));
+    if (blocked) actions.append(actionButton('Sblocca', () => unblockTime(booking), 'secondary'));
     card.append(actions); return card;
   }
   function renderDay() {
@@ -163,7 +171,7 @@
       const data = await api(API_BOOKINGS, { action: 'list' });
       const list = Array.isArray(data) ? data : Array.isArray(data.bookings) ? data.bookings : Array.isArray(data.data) ? data.data : null;
       if (!list) throw new Error('Il servizio ha restituito un formato inatteso.');
-      bookings = list; busy = false; renderAll(); message(`Aggiornato · ${bookings.length} prenotazioni`, 'success');
+      bookings = list; busy = false; renderAll(); if (!$('#blocksView').hidden) renderBlockedTimes(); message(`Aggiornato · ${bookings.length} prenotazioni`, 'success');
     } catch (error) { message(`Aggiornamento non riuscito: ${error.message}`, 'error'); }
     finally { busy = false; $('#refreshButton').disabled = false; $('#refreshButton').textContent = '↻'; }
   }
@@ -318,15 +326,15 @@
     const view = button.dataset.view;
     document.querySelectorAll('.view').forEach((section) => { section.hidden = section.id !== `${view}View`; });
     document.querySelectorAll('[data-view]').forEach((item) => item.classList.toggle('selected', item.dataset.view === view));
-    $('#pageTitle').textContent = view === 'agenda' ? 'Agenda' : view === 'clients' ? 'Clienti' : 'Barbieri';
-    if (view === 'clients') renderClients(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    $('#pageTitle').textContent = view === 'agenda' ? 'Agenda' : view === 'clients' ? 'Clienti' : view === 'blocks' ? 'Orari bloccati' : 'Barbieri';
+    if (view === 'clients') renderClients(); if (view === 'blocks') renderBlockedTimes(); window.scrollTo({ top: 0, behavior: 'smooth' });
   }));
   function renderClients() {
     const host = $('#clientList'); if (!host) return;
     host.replaceChildren();
     const query = ($('#clientSearch')?.value || '').trim().toLocaleLowerCase('it-IT');
     const grouped = new Map();
-    bookings.filter((item) => !['blocked', 'unblocked'].includes(String(item.status || '').toLowerCase()) && (item.customer_name || item.customer_phone)).forEach((item) => {
+    bookings.filter((item) => !isBlockedTime(item) && String(item.status || '').toLowerCase() !== 'unblocked' && (item.customer_name || item.customer_phone)).forEach((item) => {
       const key = `${String(item.customer_name || '').trim().toLocaleLowerCase('it-IT')}|${String(item.customer_phone || '').replace(/\D/g, '')}`;
       if (!grouped.has(key)) grouped.set(key, []);
       grouped.get(key).push(item);
@@ -366,6 +374,14 @@
       busy = false; await loadBookings(); renderClients(); message('Cliente e prenotazioni cancellati.', 'success');
     } catch (error) { busy = false; message(`Cancellazione non riuscita: ${error.message}`, 'error'); }
   }
+  function renderBlockedTimes() {
+    const host = $('#blockedTimesList'); if (!host) return;
+    host.replaceChildren();
+    const items = bookings.filter((item) => isBlockedTime(item) && String(item.status || '').toLowerCase() !== 'unblocked').sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+    if (!items.length) { const p = document.createElement('p'); p.className = 'empty-state compact'; p.textContent = 'Nessun orario bloccato.'; host.append(p); return; }
+    items.forEach((item) => host.append(renderBookingCard(item)));
+  }
+  $('#refreshBlocksButton')?.addEventListener('click', loadBookings);
   $('#clientSearch')?.addEventListener('input', renderClients);
   $('#addBarberForm').addEventListener('submit', async (event) => {
     event.preventDefault(); const input = $('#newBarberName'); const name = input.value.trim(); if (!name || busy) return;

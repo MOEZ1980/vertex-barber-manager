@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#11110f">
   <title>VERTEX | Barber Manager</title>
-  <link rel="stylesheet" href="vertex-apex.css?v=4">
+  <link rel="stylesheet" href="vertex-apex.css?v=6">
 </head>
 <body>
   <div class="app-shell">
@@ -13,6 +13,7 @@
       <a class="brand-mark" href="#home" aria-label="VERTEX home"><span>V</span><i>✦</i></a>
       <button class="rail-link selected" data-view="agenda" aria-label="Agenda" title="Agenda">▦</button>
       <button class="rail-link" data-view="clients" aria-label="Clienti" title="Clienti">♙</button>
+      <button class="rail-link" data-view="blocks" aria-label="Orari bloccati" title="Orari bloccati">◷</button>
       <button class="rail-link" data-view="team" aria-label="Barbieri" title="Barbieri">♧</button>
       <div class="rail-bottom"><span class="status-dot"></span></div>
     </aside>
@@ -50,6 +51,8 @@
 
       <section id="clientsView" class="view secondary-view" hidden><div class="welcome-row"><div><p class="eyebrow">RAPPORTI</p><h2>Clienti</h2><p class="muted">Contatta i clienti, modifica la loro ultima prenotazione attiva o elimina la scheda quando hanno terminato.</p></div></div><section class="panel"><div class="search-box">⌕ <input id="clientSearch" type="search" placeholder="Cerca nome o telefono"><span>Rubrica</span></div><div id="clientList" class="client-list"></div></section></section>
 
+      <section id="blocksView" class="view secondary-view" hidden><div class="welcome-row"><div><p class="eyebrow">DISPONIBILITÀ</p><h2>Orari bloccati</h2><p class="muted">Qui trovi solo le fasce orarie bloccate. Puoi sbloccarle quando vuoi.</p></div><button class="refresh-button" id="refreshBlocksButton" type="button" title="Aggiorna">↻</button></div><section class="panel"><div id="blockedTimesList" class="day-appointments"></div></section></section>
+
       <section id="teamView" class="view secondary-view" hidden><div class="welcome-row"><div><p class="eyebrow">PERSONALE</p><h2>Barbieri</h2><p class="muted">Gestione del team VERTEX.</p></div></div><section class="panel"><form id="addBarberForm" class="add-barber-form"><label for="newBarberName">Aggiungi un nome</label><input id="newBarberName" maxlength="80" required placeholder="Nome del barbiere"><button class="gold-button" type="submit">Aggiungi</button></form><div id="barberList" class="client-list"></div></section></section>
 
       </section>
@@ -57,8 +60,8 @@
       <footer class="footer"><span>VERTEX BARBER MANAGER <i>•</i> VERTEX HAMMAMI</span><span>Gestione appuntamenti</span></footer>
     </main>
   </div>
-  <nav class="mobile-nav" id="mobileNav" aria-label="Navigazione mobile" hidden><button class="selected" data-view="agenda"><span>▦</span>Agenda</button><button data-view="clients"><span>♙</span>Clienti</button><button data-view="team"><span>♧</span>Barbieri</button></nav>
+  <nav class="mobile-nav" id="mobileNav" aria-label="Navigazione mobile" hidden><button class="selected" data-view="agenda"><span>▦</span>Agenda</button><button data-view="clients"><span>♙</span>Clienti</button><button data-view="blocks"><span>◷</span>Blocchi</button><button data-view="team"><span>♧</span>Barbieri</button></nav>
   <dialog id="editDialog" class="edit-dialog"><form id="editForm"><div class="panel-heading"><div><p class="eyebrow">APPUNTAMENTO</p><h2>Modifica dati</h2></div><button id="closeEdit" class="refresh-button" type="button">×</button></div><label>Nome cliente<input id="editName" required maxlength="120"></label><label>Telefono<input id="editPhone" required maxlength="30"></label><label>Servizio<input id="editService" required maxlength="120"></label><div class="edit-grid"><label>Prezzo (€)<input id="editPrice" type="number" min="0" max="1000" step="0.01" required></label><label>Durata (minuti)<input id="editDuration" type="number" min="5" max="240" required></label><label>Data<input id="editDate" type="date" required></label><label>Ora<input id="editTime" type="time" required></label></div><div class="booking-actions"><button class="gold-button" type="submit">Salva modifica</button><button id="cancelEdit" class="booking-action secondary" type="button">Annulla</button></div></form></dialog>
-  <script src="vertex-apex.js?v=4"></script>
+  <script src="vertex-apex.js?v=6"></script>
 </body>
 </html>
