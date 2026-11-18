@@ -8,12 +8,13 @@ Build a fresh, mobile-first admin app under a separate source tree. The first co
 
 ## Product direction
 
-- Italian interface; black and gold VERTEX style; mobile and desktop layouts.
+- Italian interface; black and gold VERTEX style with the shop logo; mobile and desktop layouts.
+- Admin devices can enroll in Push notifications and send a test notification through the existing Supabase Push functions.
 - Admin sign-in and booking management connect to the existing Supabase service using its publishable browser key and authenticated session.
 - Monthly calendar with appointment time and customer name shown in date cells; selecting a date jumps to its appointments.
 - Month-wide appointment list grouped by date; selecting a date jumps to its group.
 - Booking status filters and counts; inspect, confirm, reject, cancel, and edit.
-- Block and unblock periods; searchable client list; barber management.
+- Block and unblock periods; searchable client list with WhatsApp, booking editing, and safe client deletion when there are no upcoming active bookings; barber management.
 - New unique browser session key, separate from the old admin.
 
 ## Rollout

@@ -165,7 +165,9 @@
     const details = document.createElement('p'); details.className = 'booking-details'; details.textContent = blocked ? (booking.service_name || 'Blocco orario') : `${booking.service_name || 'Servizio'} · ${booking.customer_phone || 'Nessun telefono'}`; card.append(details);
     const status = document.createElement('span'); status.className = `booking-status ${blocked ? 'blocked' : booking.status || ''}`; status.textContent = blocked ? 'Orario bloccato' : labels[booking.status] || booking.status || '—'; card.append(status);
     const actions = document.createElement('div'); actions.className = 'booking-actions';
-    if (!blocked && booking.status !== 'unblocked') actions.append(actionButton('Modifica', () => openEdit(booking), 'edit-action'));
+    const archived = ['cancelled', 'rejected'].includes(String(booking.status || '').toLowerCase());
+    if (!blocked && !archived && booking.status !== 'unblocked') actions.append(actionButton('Modifica', () => openEdit(booking), 'edit-action'));
+    if (!blocked && archived) actions.append(actionButton('Elimina', () => deleteBooking(booking), 'danger'));
     if (!blocked && booking.status === 'pending') {
       actions.append(actionButton('Conferma', () => changeStatus(booking, 'confirmed')), actionButton('Rifiuta', () => changeStatus(booking, 'rejected'), 'danger'));
     }
@@ -257,6 +259,14 @@
       else if (waUrl) window.location.href = waUrl;
       await loadBookings();
     } catch (error) { busy = false; if (waTab && !waTab.closed) waTab.close(); message(`Modifica non salvata: ${error.message}`, 'error'); }
+  }
+  async function deleteBooking(booking) {
+    if (busy || !booking?.id || !window.confirm(`Eliminare definitivamente la prenotazione di «${booking.customer_name || 'Cliente'}»?`)) return;
+    try {
+      busy = true; message('Eliminazione in corso…');
+      await api('/rest/v1/rpc/vertex_admin_delete_bookings', { p_booking_ids: [booking.id] });
+      busy = false; await loadBookings(); message('Prenotazione eliminata.', 'success');
+    } catch (error) { busy = false; message(`Eliminazione non riuscita: ${error.message}`, 'error'); }
   }
   async function unblockTime(booking) {
     if (busy || !booking?.id || !window.confirm(`Sbloccare l’orario delle ${bookingTime(booking.starts_at)}?`)) return;

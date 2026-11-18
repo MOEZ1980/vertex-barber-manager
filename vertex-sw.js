@@ -10,8 +10,8 @@ self.addEventListener('push', (event) => {
   catch { data = { body: event.data ? event.data.text() : '' }; }
   event.waitUntil(self.registration.showNotification(data.title || 'VERTEX HAMMAMI', {
     body: data.body || 'Nuova prenotazione ricevuta!',
-    icon: '/logo.jpg',
-    badge: '/logo.jpg',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     tag: data.tag || 'vertex-booking',
     renotify: true,
     // Always open the new admin root; ignore any old admin URL in queued push payloads.
