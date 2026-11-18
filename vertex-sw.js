@@ -14,12 +14,13 @@ self.addEventListener('push', (event) => {
     badge: '/logo.jpg',
     tag: data.tag || 'vertex-booking',
     renotify: true,
-    data: { url: data.url || '/' }
+    // Always open the new admin root; ignore any old admin URL in queued push payloads.
+    data: { url: `${self.location.origin}/` }
   }));
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  const url = `${self.location.origin}/`;
   event.waitUntil(self.clients.openWindow(url));
 });
