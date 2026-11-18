@@ -346,9 +346,25 @@
       if (waUrl) actions.append(actionButton('WhatsApp', () => window.open(waUrl, '_blank', 'noopener'), 'whatsapp-action'));
       const editable = items.find((item) => item.status !== 'blocked' && item.status !== 'unblocked');
       if (editable) actions.append(actionButton('Modifica ultima prenotazione', () => openEdit(editable), 'edit-action'));
+      const hasUpcomingActive = items.some((item) => ['pending', 'confirmed'].includes(item.status) && new Date(item.starts_at).getTime() >= Date.now());
+      if (!hasUpcomingActive) actions.append(actionButton('Cancella cliente', () => deleteClient(items), 'danger'));
       row.append(actions); host.append(row);
     });
     if (!records.length) { const p = document.createElement('p'); p.className = 'empty-state compact'; p.textContent = 'Nessun cliente trovato.'; host.append(p); }
+  }
+  async function deleteClient(items) {
+    if (busy || !items?.length) return;
+    const ids = items.map((item) => String(item.id)).filter(Boolean);
+    if (!ids.length) return;
+    const customerName = items[0].customer_name || 'questo cliente';
+    if (!window.confirm(`Cancellare definitivamente la scheda di ${customerName} e tutte le sue ${ids.length} prenotazioni? Questa operazione non si può annullare.`)) return;
+    try {
+      busy = true; message('Cancellazione in corso…');
+      for (let i = 0; i < ids.length; i += 100) {
+        await api('/rest/v1/rpc/vertex_admin_delete_bookings', { p_booking_ids: ids.slice(i, i + 100) });
+      }
+      busy = false; await loadBookings(); renderClients(); message('Cliente e prenotazioni cancellati.', 'success');
+    } catch (error) { busy = false; message(`Cancellazione non riuscita: ${error.message}`, 'error'); }
   }
   $('#clientSearch')?.addEventListener('input', renderClients);
   $('#addBarberForm').addEventListener('submit', async (event) => {
