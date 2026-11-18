@@ -222,15 +222,30 @@
     catch (error) { busy = false; message(`Sblocco non riuscito: ${error.message}`, 'error'); }
   }
   function whatsappDraft(booking, status) {
-    const raw = String(booking.customer_phone || '').trim();
-    let phone = raw.replace(/[^\d+]/g, '');
-    if (phone.startsWith('00')) phone = phone.slice(2); else if (phone.startsWith('+')) phone = phone.slice(1); else if (/^3\d{9}$/.test(phone)) phone = `39${phone}`;
-    if (!/^\d{8,15}$/.test(phone) || !(raw.startsWith('+') || raw.startsWith('00') || /^393\d{9}$/.test(phone))) return '';
+    const phone = whatsappNumber(booking.customer_phone);
+    if (!phone) return '';
     const when = dateTimeFormat.format(new Date(booking.starts_at));
     const maps = 'https://www.google.com/maps/search/?api=1&query=VERTEX%20by%20HAMMAMI&query_place_id=ChIJ46O6CplJeUcRbBb5pm9VDqM';
     const text = status === 'confirmed'
       ? `Ciao ${booking.customer_name || ''},\n\n✅ VERTEX HAMMAMI ha confermato il tuo appuntamento.\n📅 Data e ora: ${when}\n✂️ Servizio: ${booking.service_name || '—'}\n\n📍 Via Terraglio 111, Frescada, Preganziol, Italia\n${maps}\n\nTi aspettiamo!`
       : `Ciao ${booking.customer_name || ''}, mi dispiace, l’orario che hai richiesto non è disponibile. Puoi scegliere un altro orario qui https://www.vertexhammami.it/#prenota. Grazie, VERTEX HAMMAMI.`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  }
+  function whatsappNumber(rawValue) {
+    const raw = String(rawValue || '').trim();
+    let phone = raw.replace(/[^\d+]/g, '');
+    if (phone.startsWith('00')) phone = phone.slice(2); else if (phone.startsWith('+')) phone = phone.slice(1); else if (/^3\d{9}$/.test(phone)) phone = `39${phone}`;
+    return /^\d{8,15}$/.test(phone) && (raw.startsWith('+') || raw.startsWith('00') || /^393\d{9}$/.test(phone)) ? phone : '';
+  }
+  function whatsappCustomerDraft(booking, modified = false) {
+    const phone = whatsappNumber(booking.customer_phone);
+    if (!phone) return '';
+    const name = String(booking.customer_name || '').trim();
+    const greeting = name ? `Ciao ${name},` : 'Ciao,';
+    const when = dateTimeFormat.format(new Date(booking.starts_at));
+    const text = modified
+      ? `${greeting}\n\nLa tua prenotazione VERTEX HAMMAMI è stata aggiornata.\n📅 Data e ora: ${when}\n✂️ Servizio: ${booking.service_name || '—'}\n\nSe hai domande, rispondi a questo messaggio.\nVERTEX HAMMAMI`
+      : `${greeting}\n\nTi contattiamo da VERTEX HAMMAMI.\nA presto!`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   }
   function romeParts(value) {
@@ -266,11 +281,17 @@
   $('#editForm').addEventListener('submit', async (event) => {
     event.preventDefault(); if (busy || !editingBookingId) return;
     try {
+      const original = bookings.find((item) => String(item.id) === String(editingBookingId));
       const starts_at = romeToISO($('#editDate').value, $('#editTime').value); const minutes = Number($('#editDuration').value);
       if (!Number.isInteger(minutes) || minutes < 5 || minutes > 240) throw new Error('La durata deve essere tra 5 e 240 minuti.');
       if (!window.confirm('Salvare le modifiche a questa prenotazione?')) return;
-      busy = true; await api('/functions/v1/admin-schedule', { action: 'edit', id: editingBookingId, customer_name: $('#editName').value.trim(), customer_phone: $('#editPhone').value.trim(), service_name: $('#editService').value.trim(), price: Number($('#editPrice').value), starts_at, ends_at: new Date(new Date(starts_at).getTime() + minutes * 60000).toISOString() });
+      const updated = { ...original, customer_name: $('#editName').value.trim(), customer_phone: $('#editPhone').value.trim(), service_name: $('#editService').value.trim(), starts_at };
+      const waUrl = whatsappCustomerDraft(updated, true);
+      const waTab = waUrl ? window.open('about:blank', '_blank') : null;
+      if (waTab) waTab.opener = null;
+      busy = true; await api('/functions/v1/admin-schedule', { action: 'edit', id: editingBookingId, customer_name: updated.customer_name, customer_phone: updated.customer_phone, service_name: updated.service_name, price: Number($('#editPrice').value), starts_at, ends_at: new Date(new Date(starts_at).getTime() + minutes * 60000).toISOString() });
       busy = false; $('#editDialog').close(); await loadBookings(); message('Prenotazione modificata.');
+      if (waUrl) { if (waTab && !waTab.closed) waTab.location.replace(waUrl); else window.location.href = waUrl; }
     } catch (error) { busy = false; message(`Modifica non salvata: ${error.message}`, 'error'); }
   });
   $('#cancelEdit').addEventListener('click', () => $('#editDialog').close());
@@ -304,14 +325,45 @@
     const host = $('#clientList'); if (!host) return;
     host.replaceChildren();
     const query = ($('#clientSearch')?.value || '').trim().toLocaleLowerCase('it-IT');
-    const unique = new Map();
-    bookings.filter((item) => !['cancelled', 'rejected', 'blocked'].includes(item.status)).forEach((item) => {
-      const key = `${item.customer_name || ''}|${item.customer_phone || ''}`;
-      if (!unique.has(key)) unique.set(key, item);
+    const grouped = new Map();
+    bookings.filter((item) => !['blocked', 'unblocked'].includes(String(item.status || '').toLowerCase()) && (item.customer_name || item.customer_phone)).forEach((item) => {
+      const key = `${String(item.customer_name || '').trim().toLocaleLowerCase('it-IT')}|${String(item.customer_phone || '').replace(/\D/g, '')}`;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(item);
     });
-    const records = [...unique.values()].filter((item) => `${item.customer_name || ''} ${item.customer_phone || ''}`.toLocaleLowerCase('it-IT').includes(query));
-    records.forEach((item) => { const row = document.createElement('article'); row.className = 'client-row'; const name = document.createElement('strong'); name.textContent = item.customer_name || 'Cliente'; const phone = document.createElement('a'); phone.textContent = item.customer_phone || 'Telefono non disponibile'; if (item.customer_phone) phone.href = `tel:${String(item.customer_phone).replace(/[^+\d]/g, '')}`; const meta = document.createElement('small'); meta.textContent = `${item.service_name || 'Servizio'} · ${dateTimeFormat.format(new Date(item.starts_at))}`; row.append(name, phone, meta); host.append(row); });
+    const records = [...grouped.values()].map((items) => {
+      items.sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at));
+      return { latest: items[0], items };
+    }).filter(({ latest }) => `${latest.customer_name || ''} ${latest.customer_phone || ''}`.toLocaleLowerCase('it-IT').includes(query));
+    records.forEach(({ latest, items }) => {
+      const row = document.createElement('article'); row.className = 'client-row client-record';
+      const name = document.createElement('strong'); name.textContent = latest.customer_name || 'Cliente';
+      const phone = document.createElement('a'); phone.textContent = latest.customer_phone || 'Telefono non disponibile'; if (latest.customer_phone) phone.href = `tel:${String(latest.customer_phone).replace(/[^+\d]/g, '')}`;
+      const meta = document.createElement('small'); meta.textContent = `${items.length} prenotazion${items.length === 1 ? 'e' : 'i'} · ultima: ${latest.service_name || 'Servizio'} · ${dateTimeFormat.format(new Date(latest.starts_at))}`;
+      row.append(name, phone, meta);
+      const actions = document.createElement('div'); actions.className = 'booking-actions client-actions';
+      const waUrl = whatsappCustomerDraft(latest);
+      if (waUrl) actions.append(actionButton('WhatsApp', () => window.open(waUrl, '_blank', 'noopener'), 'whatsapp-action'));
+      const editable = items.find((item) => ['pending', 'confirmed'].includes(item.status));
+      if (editable) actions.append(actionButton('Modifica prenotazione', () => openEdit(editable), 'secondary'));
+      const hasUpcomingActive = items.some((item) => ['pending', 'confirmed'].includes(item.status) && new Date(item.starts_at).getTime() >= Date.now());
+      if (!hasUpcomingActive) actions.append(actionButton('Elimina cliente', () => deleteClient(items), 'danger'));
+      else { const hint = document.createElement('small'); hint.className = 'client-delete-hint'; hint.textContent = 'Eliminazione disponibile dopo gli appuntamenti futuri.'; actions.append(hint); }
+      row.append(actions); host.append(row);
+    });
     if (!records.length) { const p = document.createElement('p'); p.className = 'empty-state compact'; p.textContent = 'Nessun cliente trovato.'; host.append(p); }
+  }
+  async function deleteClient(items) {
+    if (busy || !items?.length) return;
+    const ids = items.map((item) => String(item.id)).filter(Boolean);
+    if (!ids.length) return;
+    const customerName = items[0].customer_name || 'questo cliente';
+    if (!window.confirm(`Eliminare definitivamente la scheda di ${customerName} e tutte le sue ${ids.length} prenotazioni? Questa operazione non si può annullare.`)) return;
+    try {
+      busy = true; message('Eliminazione in corso…');
+      await api('/rest/v1/rpc/vertex_admin_delete_bookings', { p_booking_ids: ids });
+      busy = false; await loadBookings(); renderClients(); message('Cliente e prenotazioni eliminate.', 'success');
+    } catch (error) { busy = false; message(`Eliminazione non riuscita: ${error.message}`, 'error'); }
   }
   $('#clientSearch')?.addEventListener('input', renderClients);
   $('#addBarberForm').addEventListener('submit', async (event) => {
