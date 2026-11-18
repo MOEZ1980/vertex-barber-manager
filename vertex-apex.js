@@ -118,9 +118,7 @@
       if (!booking.starts_at || !Number.isFinite(new Date(booking.starts_at).getTime())) return false;
       const date = new Date(booking.starts_at);
       const key = `${date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' }).slice(0, 7)}`;
-      const status = String(booking.status || '').toLowerCase();
-      const matchesStatus = filter === 'active' ? ['pending', 'confirmed'].includes(status) : (filter === 'all' || status === filter);
-      return key === currentMonthKey() && matchesStatus;
+      return key === currentMonthKey() && (filter === 'all' || booking.status === filter);
     }).sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
   }
   function setSelectedDate(date) {
@@ -298,7 +296,7 @@
     const greeting = name ? `Ciao ${name},` : 'Ciao,';
     const when = dateTimeFormat.format(new Date(booking.starts_at));
     const text = modified
-      ? `${greeting} mi dispiace, all’orario richiesto non abbiamo disponibilità.\n\nTi proponiamo questo nuovo orario: ${when}.\nSe ti va bene, rispondi a questo messaggio; altrimenti puoi prenotare un altro orario qui: https://www.vertexhammami.it/#prenota\n\nGrazie, VERTEX HAMMAMI.`
+      ? `${greeting}\n\nLa tua prenotazione VERTEX HAMMAMI è stata aggiornata.\n📅 Data e ora: ${when}\n✂️ Servizio: ${booking.service_name || '—'}\n\nSe hai domande, rispondi a questo messaggio.\nVERTEX HAMMAMI`
       : `${greeting}\n\nTi contattiamo da VERTEX HAMMAMI.\nA presto!`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   }
@@ -341,9 +339,11 @@
       if (!window.confirm('Salvare le modifiche a questa prenotazione?')) return;
       const updated = { ...original, customer_name: $('#editName').value.trim(), customer_phone: $('#editPhone').value.trim(), service_name: $('#editService').value.trim(), starts_at };
       const waUrl = whatsappCustomerDraft(updated, true);
+      const waTab = waUrl ? window.open('about:blank', '_blank') : null;
+      if (waTab) waTab.opener = null;
       busy = true; await api('/functions/v1/admin-schedule', { action: 'edit', id: editingBookingId, customer_name: updated.customer_name, customer_phone: updated.customer_phone, service_name: updated.service_name, price: Number($('#editPrice').value), starts_at, ends_at: new Date(new Date(starts_at).getTime() + minutes * 60000).toISOString() });
       busy = false; $('#editDialog').close(); await loadBookings(); message('Prenotazione modificata.');
-      if (waUrl) window.location.assign(waUrl);
+      if (waUrl) { if (waTab && !waTab.closed) waTab.location.replace(waUrl); else window.location.href = waUrl; }
     } catch (error) { busy = false; message(`Modifica non salvata: ${error.message}`, 'error'); }
   });
   $('#cancelEdit').addEventListener('click', () => $('#editDialog').close());
