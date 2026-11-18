@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#11110f">
   <title>VERTEX | Barber Manager</title>
-  <link rel="stylesheet" href="vertex-apex.css">
+  <link rel="stylesheet" href="vertex-apex.css?v=3">
 </head>
 <body>
   <div class="app-shell">
@@ -59,6 +59,6 @@
   </div>
   <nav class="mobile-nav" id="mobileNav" aria-label="Navigazione mobile" hidden><button class="selected" data-view="agenda"><span>▦</span>Agenda</button><button data-view="clients"><span>♙</span>Clienti</button><button data-view="team"><span>♧</span>Barbieri</button></nav>
   <dialog id="editDialog" class="edit-dialog"><form id="editForm"><div class="panel-heading"><div><p class="eyebrow">APPUNTAMENTO</p><h2>Modifica dati</h2></div><button id="closeEdit" class="refresh-button" type="button">×</button></div><label>Nome cliente<input id="editName" required maxlength="120"></label><label>Telefono<input id="editPhone" required maxlength="30"></label><label>Servizio<input id="editService" required maxlength="120"></label><div class="edit-grid"><label>Prezzo (€)<input id="editPrice" type="number" min="0" max="1000" step="0.01" required></label><label>Durata (minuti)<input id="editDuration" type="number" min="5" max="240" required></label><label>Data<input id="editDate" type="date" required></label><label>Ora<input id="editTime" type="time" required></label></div><div class="booking-actions"><button class="gold-button" type="submit">Salva modifica</button><button id="cancelEdit" class="booking-action secondary" type="button">Annulla</button></div></form></dialog>
-  <script src="vertex-apex.js"></script>
+  <script src="vertex-apex.js?v=3"></script>
 </body>
 </html>

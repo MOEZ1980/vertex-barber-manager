@@ -123,7 +123,7 @@
     const details = document.createElement('p'); details.className = 'booking-details'; details.textContent = booking.status === 'blocked' ? (booking.service_name || 'Blocco orario') : `${booking.service_name || 'Servizio'} · ${booking.customer_phone || 'Nessun telefono'}`; card.append(details);
     const status = document.createElement('span'); status.className = `booking-status ${booking.status || ''}`; status.textContent = labels[booking.status] || booking.status || '—'; card.append(status);
     const actions = document.createElement('div'); actions.className = 'booking-actions';
-    if (['pending', 'confirmed'].includes(booking.status)) actions.append(actionButton('Modifica', () => openEdit(booking), 'secondary'));
+    if (booking.status !== 'blocked' && booking.status !== 'unblocked') actions.append(actionButton('Modifica', () => openEdit(booking), 'edit-action'));
     if (booking.status === 'pending') {
       actions.append(actionButton('Conferma', () => changeStatus(booking, 'confirmed')), actionButton('Rifiuta', () => changeStatus(booking, 'rejected'), 'danger'));
     }
@@ -344,26 +344,11 @@
       const actions = document.createElement('div'); actions.className = 'booking-actions client-actions';
       const waUrl = whatsappCustomerDraft(latest);
       if (waUrl) actions.append(actionButton('WhatsApp', () => window.open(waUrl, '_blank', 'noopener'), 'whatsapp-action'));
-      const editable = items.find((item) => ['pending', 'confirmed'].includes(item.status));
-      if (editable) actions.append(actionButton('Modifica prenotazione', () => openEdit(editable), 'secondary'));
-      const hasUpcomingActive = items.some((item) => ['pending', 'confirmed'].includes(item.status) && new Date(item.starts_at).getTime() >= Date.now());
-      if (!hasUpcomingActive) actions.append(actionButton('Elimina cliente', () => deleteClient(items), 'danger'));
-      else { const hint = document.createElement('small'); hint.className = 'client-delete-hint'; hint.textContent = 'Eliminazione disponibile dopo gli appuntamenti futuri.'; actions.append(hint); }
+      const editable = items.find((item) => item.status !== 'blocked' && item.status !== 'unblocked');
+      if (editable) actions.append(actionButton('Modifica ultima prenotazione', () => openEdit(editable), 'edit-action'));
       row.append(actions); host.append(row);
     });
     if (!records.length) { const p = document.createElement('p'); p.className = 'empty-state compact'; p.textContent = 'Nessun cliente trovato.'; host.append(p); }
-  }
-  async function deleteClient(items) {
-    if (busy || !items?.length) return;
-    const ids = items.map((item) => String(item.id)).filter(Boolean);
-    if (!ids.length) return;
-    const customerName = items[0].customer_name || 'questo cliente';
-    if (!window.confirm(`Eliminare definitivamente la scheda di ${customerName} e tutte le sue ${ids.length} prenotazioni? Questa operazione non si può annullare.`)) return;
-    try {
-      busy = true; message('Eliminazione in corso…');
-      await api('/rest/v1/rpc/vertex_admin_delete_bookings', { p_booking_ids: ids });
-      busy = false; await loadBookings(); renderClients(); message('Cliente e prenotazioni eliminate.', 'success');
-    } catch (error) { busy = false; message(`Eliminazione non riuscita: ${error.message}`, 'error'); }
   }
   $('#clientSearch')?.addEventListener('input', renderClients);
   $('#addBarberForm').addEventListener('submit', async (event) => {
