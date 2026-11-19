@@ -418,13 +418,60 @@
       busy = false; await loadBookings(); renderClients(); message('Cliente e prenotazioni cancellati.', 'success');
     } catch (error) { busy = false; message(`Cancellazione non riuscita: ${error.message}`, 'error'); }
   }
-  function renderBlockedTimes() {
-    const host = $('#blockedTimesList'); if (!host) return;
-    host.replaceChildren();
-    const items = bookings.filter((item) => isBlockedTime(item) && String(item.status || '').toLowerCase() !== 'unblocked').sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
-    if (!items.length) { const p = document.createElement('p'); p.className = 'empty-state compact'; p.textContent = 'Nessun orario bloccato.'; host.append(p); return; }
-    items.forEach((item) => host.append(renderBookingCard(item)));
+  
+function renderBlockedTimes() {
+  const host = $('#blockedTimesList');
+  if (!host) return;
+
+  host.replaceChildren();
+
+  const items = bookings
+    .filter(item =>
+      isBlockedTime(item) &&
+      String(item.status || '').toLowerCase() !== 'unblocked'
+    )
+    .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+
+  if (!items.length) {
+    const p = document.createElement('p');
+    p.className = 'empty-state compact';
+    p.textContent = 'Nessun orario bloccato.';
+    host.append(p);
+    return;
   }
+
+  const giorno = new Intl.DateTimeFormat('it-IT', {
+    timeZone: 'Europe/Rome',
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  const ora = new Intl.DateTimeFormat('it-IT', {
+    timeZone: 'Europe/Rome',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  items.forEach(item => {
+    const card = renderBookingCard(item);
+    const heading = card.querySelector('.booking-heading');
+    const start = new Date(item.starts_at);
+    const end = new Date(item.ends_at);
+
+    if (heading && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      const info = document.createElement('div');
+      info.style.cssText = 'font-weight:600;line-height:1.6;margin-top:8px;';
+      info.textContent =
+        `${giorno.format(start)} | ${ora.format(start)} - ${ora.format(end)}`;
+      heading.append(info);
+    }
+
+    host.append(card);
+  });
+}
+
   $('#refreshBlocksButton')?.addEventListener('click', loadBookings);
   $('#clientSearch')?.addEventListener('input', renderClients);
   $('#addBarberForm').addEventListener('submit', async (event) => {
