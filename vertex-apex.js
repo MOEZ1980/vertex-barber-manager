@@ -185,7 +185,7 @@
   }
   function renderMonthList() {
     const host = $('#monthAppointments'); host.replaceChildren();
-    const items = filteredBookings();
+    const items = filteredBookings().filter((item) => !isBlockedTime(item));
     if (!items.length) { const empty = document.createElement('div'); empty.className = 'empty-row'; empty.innerHTML = '<span>—</span><div><strong>Nessun appuntamento per questo filtro</strong><p>Prova un altro stato o un altro mese.</p></div>'; host.append(empty); return; }
     const groups = new Map(); items.forEach((item) => { const key = romeDay(item.starts_at); if (!groups.has(key)) groups.set(key, []); groups.get(key).push(item); });
     groups.forEach((entries, key) => {
