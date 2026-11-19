@@ -428,8 +428,7 @@ function renderBlockedTimes() {
   const items = bookings
     .filter(item =>
       isBlockedTime(item) &&
-      String(item.status || '').toLowerCase() !== 'unblocked'
-    )
+!['unblocked', 'cancelled', 'canceled'].includes(String(item.status || '').toLowerCase())    )
     .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
 
   if (!items.length) {
