@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VERTEX HAMMAMI | Cassa</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#f4f0e8;font-family:Arial,sans-serif;padding:18px}
+main{max-width:850px;margin:auto}
+h1,h2{color:#d5a84e}
+header{text-align:center;border-bottom:1px solid #695127;padding:15px}
+.card{background:#1d1d1d;border:1px solid #554224;border-radius:14px;padding:16px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.value{font-size:27px;color:#edc56d;font-weight:bold;margin-top:8px}
+label{display:block;margin:12px 0 5px;color:#d8c59c}
+input,select,button{width:100%;padding:13px;border-radius:9px;font-size:16px}
+input,select{background:#292929;border:1px solid #66512d;color:white}
+button{background:#c99b43;color:#111;border:0;font-weight:bold;cursor:pointer;margin-top:12px}
+.secondary{background:#333;color:#f4d48a}
+.entry{padding:12px 0;border-bottom:1px solid #444}
+small{color:#bcbcbc}
+.warning{color:#f2c579;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>VERTEX HAMMAMI</h1>
+<p>Cassa & Contabilità</p>
+</header>
+
+<div class="grid">
+<div class="card">Incassato oggi<div class="value" id="today">0,00 €</div></div>
+<div class="card">Contanti<div class="value" id="cash">0,00 €</div></div>
+<div class="card">Carta<div class="value" id="card">0,00 €</div></div>
+<div class="card">Da incassare<div class="value" id="debt">0,00 €</div></div>
+</div>
+
+<section class="card">
+<h2>Nuovo movimento</h2>
+<form id="form">
+<label>Data</label>
+<input type="date" id="date" required>
+<label>Cliente</label>
+<input id="client" placeholder="Nome cliente" maxlength="100" required>
+<label>Servizio</label>
+<select id="service">
+<option>Taglio capelli</option>
+<option>Capelli e shampoo</option>
+<option>Capelli e barba</option>
+<option>Capelli, barba e shampoo</option>
+<option>Barba</option>
+<option>Altro servizio</option>
+</select>
+<label>Importo (€)</label>
+<input type="number" id="amount" min="0.01" step="0.01" required>
+<label>Pagamento</label>
+<select id="payment">
+<option value="cash">Pagato contanti</option>
+<option value="card">Pagato carta</option>
+<option value="debt">Da pagare / Debito</option>
+</select>
+<button type="submit">Salva movimento</button>
+</form>
+</section>
+
+<section class="card">
+<h2>Registro clienti</h2>
+<label>Visualizza mese</label>
+<input type="month" id="month">
+<div id="entries"></div>
+<button class="secondary" id="export" type="button">Esporta CSV</button>
+</section>
+
+<p class="warning">Versione provvisoria: i dati sono salvati soltanto in questo browser. Non inserire dati reali dei clienti finché non colleghiamo l'accesso riservato e il database Supabase.</p>
+</main>
+<script>
+const key='vertex_cassa_demo';
+let records=JSON.parse(localStorage.getItem(key)||'[]');
+const el=id=>document.getElementById(id);
+const euro=n=>Number(n).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+const dateLocal=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+el('date').value=dateLocal();
+el('month').value=dateLocal().slice(0,7);
+function refresh(){
+ const today=dateLocal(),month=el('month').value;
+ const daily=records.filter(r=>r.date===today);
+ const sum=(items,p)=>items.filter(r=>r.payment===p).reduce((a,r)=>a+r.amount,0);
+ el('cash').textContent=euro(sum(daily,'cash'));
+ el('card').textContent=euro(sum(daily,'card'));
+ el('today').textContent=euro(sum(daily,'cash')+sum(daily,'card'));
+ el('debt').textContent=euro(sum(records,'debt'));
+ const area=el('entries');area.replaceChildren();
+ records.filter(r=>r.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{
+  const div=document.createElement('div');div.className='entry';
+  const title=document.createElement('strong');
+  title.textContent=r.client+' — '+euro(r.amount);
+  const detail=document.createElement('div');
+  detail.textContent=r.date+' · '+r.service+' · '+({cash:'Pagato contanti',card:'Pagato carta',debt:'Da pagare'}[r.payment]);
+  const button=document.createElement('button');button.className='secondary';
+  button.textContent=r.payment==='debt'?'Segna come pagato':'Elimina';
+  button.onclick=()=>{
+   if(r.payment==='debt'){
+    const p=prompt('Metodo di pagamento: contanti oppure carta?');
+    if(!p)return;
+    const v=p.toLowerCase().trim();
+    if(!['contanti','carta'].includes(v)){alert('Inserisci contanti oppure carta');return}
+    r.payment=v==='carta'?'card':'cash';
+   }else if(confirm('Eliminare questo movimento?')){
+    records=records.filter(x=>x.id!==r.id);
+   }else return;
+   save();
+  };
+  div.append(title,detail,button);area.append(div);
+ });
+}
+function save(){localStorage.setItem(key,JSON.stringify(records));refresh()}
+el('form').onsubmit=e=>{
+ e.preventDefault();
+ records.push({id:crypto.randomUUID(),date:el('date').value,client:el('client').value.trim(),service:el('service').value,amount:Number(el('amount').value),payment:el('payment').value});
+ save();e.target.reset();el('date').value=dateLocal();
+};
+el('month').onchange=refresh;
+el('export').onclick=()=>{
+ const rows=[['Data','Cliente','Servizio','Importo','Pagamento'],...records.map(r=>[r.date,r.client,r.service,r.amount,r.payment])];
+ const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\r\n');
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+ a.download='vertex-cassa.csv';a.click();URL.revokeObjectURL(a.href);
+};
+refresh();
+</script>
+</body>
+</html>
