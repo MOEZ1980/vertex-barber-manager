@@ -1,0 +1,30 @@
+/* VERTEX HAMMAMI Royal Gold — VISUAL ONLY STAGING OVERLAY.
+   Existing Supabase client, action handlers, push worker and DOM IDs are preserved. */
+:root { --bg:#050505;--surface:#141414;--surface-2:#1c1a17;--line:#3b3022;--text:#faf7f0;--muted:#b5aca0;--gold:#e4b65c;--gold-light:#f4d18a;--green:#54c86d; }
+body{background:#050505;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.app-shell,.main-area{background:transparent}
+.rail{background:#090909;border-right-color:#382b20}
+.rail-link.selected,.rail-link:hover{background:linear-gradient(145deg,#4c3418,#20160e);color:#f8cf7b}
+.topbar{border-bottom-color:#483724}.topbar .eyebrow{color:#efc774}
+.panel,.stat-card,.booking-card,.client-card{background:linear-gradient(140deg,#1a1917,#101010)!important;border-color:#3b3022!important;box-shadow:0 10px 25px #0004}
+.gold-button{background:linear-gradient(130deg,#f5d789,#d7a342)!important;color:#17110b!important}
+.eyebrow{color:#e9b957} .stat-card strong{color:#e4b65c}
+input,select,textarea{background:#11100e!important;border-color:#655032!important;color:#faf5e8!important}
+.booking-action,.refresh-button{border-color:#81663c!important;color:#f1cf8e!important}
+.booking-card{border-radius:18px!important;padding:18px!important}
+.booking-card .booking-heading{font-weight:700}
+.royal-hero{margin:25px 0 0;height:270px;border-radius:22px;position:relative;overflow:hidden;border:1px solid #75572e;background:#15100b url('royal-hero.jpg') center center / cover no-repeat;box-shadow:0 14px 35px #0008}
+.royal-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#000b,#0003 55%,#0006)}
+.royal-hero-gradient{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-shadow:0 3px 16px #000}
+.royal-hero-logo{width:70px;height:70px;object-fit:contain;border-radius:14px;filter:drop-shadow(0 0 12px #000)}
+.royal-hero-brand{font:700 38px/1.05 Georgia,serif;letter-spacing:.1em;color:#f2c879;margin:8px 0 3px}
+.royal-hero-subtitle{font:600 11px 'Segoe UI',sans-serif;letter-spacing:.42em;color:#edc479}
+.royal-profile{display:flex;align-items:center;gap:16px;padding:14px 18px;margin:0 0 20px;background:#0c0b0a;border:1px solid #45351f;border-top:0;border-radius:0 0 18px 18px}
+.royal-profile img{width:72px;height:72px;object-fit:cover;border-radius:50%;border:3px solid #d4a853}
+.royal-profile strong{display:block;font-size:21px}.royal-profile span{display:block;margin-top:5px;color:#e4b65c}
+.royal-live{width:12px;height:12px;background:#31d55d;border-radius:50%;box-shadow:0 0 7px #31d55d;margin-left:auto}
+.mobile-nav{background:#0e0c0b!important;border-top:1px solid #6b4b29!important}
+.mobile-nav button.selected{color:#f8d181!important}
+.login-card{background:#141310!important;border-color:#76592d!important}
+@media(max-width:800px){.royal-hero{height:230px;margin-top:10px}.royal-hero-brand{font-size:31px}.royal-hero-logo{width:53px;height:53px}.royal-profile img{width:62px;height:62px}.royal-profile strong{font-size:18px}.stat-card{border-radius:16px!important}}
+@media(max-width:480px){.royal-hero{height:198px}.royal-hero-brand{font-size:27px}.royal-hero-subtitle{font-size:9px}}

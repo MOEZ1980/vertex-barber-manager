@@ -1,70 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#11110f">
-  <title>VERTEX | Barber Manager</title>
-  <link rel="stylesheet" href="vertex-apex.css?v=7">
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#11110f" name="theme-color"/>
+<title>VERTEX HAMMAMI | Royal Gold — Gestione</title>
+<link href="vertex-apex.css?v=7" rel="stylesheet"/>
+<link href="royal-gold-overrides.css?v=1" rel="stylesheet"/></head>
 <body>
-  <div class="app-shell">
-    <aside class="rail" aria-label="Navigazione principale">
-      <a class="brand-mark" href="#home" aria-label="VERTEX HAMMAMI"><img class="brand-logo" src="logo.jpg" alt="VERTEX HAMMAMI"></a>
-      <button class="rail-link selected" data-view="agenda" aria-label="Agenda" title="Agenda">▦</button>
-      <button class="rail-link" data-view="clients" aria-label="Clienti" title="Clienti">♙</button>
-      <button class="rail-link" data-view="blocks" aria-label="Orari bloccati" title="Orari bloccati">◷</button>
-      <button class="rail-link" data-view="team" aria-label="Barbieri" title="Barbieri">♧</button>
-      <div class="rail-bottom"><span class="status-dot"></span></div>
-    </aside>
-
-    <main class="main-area">
-      <header class="topbar">
-        <div><div class="eyebrow">VERTEX HAMMAMI <span>•</span> GESTIONE</div><h1 id="pageTitle">Agenda</h1></div>
-        <div class="top-actions"><span class="live-label"><b></b> VERTEX</span><button class="avatar" id="logoutButton" hidden>Esci</button></div>
-      </header>
-
-      <section id="loginView" class="login-wrap"><div class="login-card"><img class="login-emblem" src="logo.jpg" alt="VERTEX HAMMAMI"><p class="owner-name">MOEZ</p><p class="eyebrow">VERTEX HAMMAMI</p><h2>Accesso amministratore</h2><p class="muted">Entra nell’area riservata per gestire il negozio.</p><form id="loginForm"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" required><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required><button class="gold-button login-submit" id="loginButton" type="submit">Accedi <span>→</span></button></form><p id="loginMessage" class="form-message" role="status" hidden></p></div></section>
-
-      <section id="dashboardView" hidden>
-      <div id="appMessage" class="app-message" role="status" hidden></div>
-      <section class="panel notification-panel"><div><p class="eyebrow">AVVISI</p><h2>Notifiche appuntamenti</h2><p class="muted" id="pushStatus">Attiva le notifiche su questo dispositivo per ricevere gli avvisi.</p></div><div class="booking-actions"><button class="booking-action" id="enableNotifications" type="button">🔔 Attiva notifiche</button><button class="booking-action secondary" id="testPushNotification" type="button">Invia prova</button></div></section>
-      <section id="agendaView" class="view">
-        <div class="welcome-row"><div><p class="eyebrow">PANORAMICA</p><h2>Il tuo negozio, sotto controllo.</h2><p class="muted">Una vista chiara della giornata e del mese.</p></div><button class="gold-button" id="todayButton">Oggi <span>↗</span></button></div>
-        <div class="stats-grid">
-          <article class="stat-card"><span class="stat-icon">◷</span><div class="stat-label">APPUNTAMENTI OGGI</div><strong id="todayCount">0</strong><small>nel calendario odierno</small></article>
-          <article class="stat-card"><span class="stat-icon">◉</span><div class="stat-label">DA CONFERMARE</div><strong id="pendingCount">0</strong><small>in attesa della tua decisione</small></article>
-          <article class="stat-card"><span class="stat-icon">＋</span><div class="stat-label">PRENOTAZIONI ATTIVE</div><strong id="activeCount">0</strong><small>confermate o in attesa</small></article>
-        </div>
-
-        <div class="content-grid">
-          <section class="panel calendar-panel">
-            <div class="panel-heading"><div><p class="eyebrow">CALENDARIO</p><h2 id="monthTitle">—</h2></div><div class="calendar-nav"><button id="prevMonth" aria-label="Mese precedente">‹</button><button id="nextMonth" aria-label="Mese successivo">›</button></div></div>
-            <div class="calendar-grid" id="calendarGrid" aria-label="Calendario mensile"></div>
-            <div class="calendar-legend"><span><i class="legend-dot"></i> Giorno selezionato</span><span><i class="legend-dot"></i> Appuntamento</span></div>
-          </section>
-          <section class="panel day-panel" id="dayPanel"><div class="panel-heading"><div><p class="eyebrow">DETTAGLIO</p><h2 id="selectedDateTitle">Seleziona un giorno</h2></div><span class="count-pill" id="dayCount">0</span></div><div id="dayAppointments" class="day-appointments"><div class="empty-state"><div class="empty-symbol">✦</div><strong>Seleziona una data</strong><p>Qui trovi i dettagli degli appuntamenti del giorno.</p></div></div></section>
-        </div>
-
-        <section class="panel schedule-panel"><div class="panel-heading"><div><p class="eyebrow">DISPONIBILITÀ</p><h2>Blocca un orario</h2></div></div><form id="blockForm" class="block-form"><label>Data<input id="blockDate" type="date" required></label><label>Dalle<input id="blockStart" type="time" value="13:00" required></label><label>Alle<input id="blockEnd" type="time" value="13:30" required></label><label>Motivo<input id="blockReason" maxlength="100" value="Pausa" required></label><button class="booking-action" type="submit">Blocca fascia</button></form><p class="muted">I blocchi impediscono nuove prenotazioni nello stesso orario.</p></section>
-        <section class="panel appointments-panel" id="appointmentsPanel"><div class="panel-heading list-heading"><div><p class="eyebrow">TUTTO IL MESE</p><h2>Elenco appuntamenti</h2></div><div class="list-tools"><label class="filter-label">Stato <select id="statusFilter"><option value="all">Tutti</option><option value="pending">In attesa</option><option value="confirmed">Confermati</option><option value="rejected">Rifiutati</option><option value="cancelled">Annullati</option><option value="blocked">Orari bloccati</option></select></label><button class="refresh-button" id="refreshButton" type="button" title="Aggiorna">↻</button></div></div><div id="monthAppointments"></div></section>
-      </section>
-
-      <section id="clientsView" class="view secondary-view" hidden><div class="welcome-row"><div><p class="eyebrow">RAPPORTI</p><h2>Clienti</h2><p class="muted">Contatta i clienti, modifica la loro ultima prenotazione attiva o elimina la scheda quando hanno terminato.</p></div></div><section class="panel"><div class="search-box">⌕ <input id="clientSearch" type="search" placeholder="Cerca nome o telefono"><span>Rubrica</span></div><div id="clientList" class="client-list"></div></section></section>
-
-      <section id="blocksView" class="view secondary-view" hidden><div class="welcome-row"><div><p class="eyebrow">DISPONIBILITÀ</p><h2>Orari bloccati</h2><p class="muted">Qui trovi solo le fasce orarie bloccate. Puoi sbloccarle quando vuoi.</p></div><button class="refresh-button" id="refreshBlocksButton" type="button" title="Aggiorna">↻</button></div><section class="panel"><div id="blockedTimesList" class="day-appointments"></div></section></section>
-
-      <section id="teamView" class="view secondary-view" hidden><div class="welcome-row"><div><p class="eyebrow">PERSONALE</p><h2>Barbieri</h2><p class="muted">Gestione del team VERTEX.</p></div></div><section class="panel"><form id="addBarberForm" class="add-barber-form"><label for="newBarberName">Aggiungi un nome</label><input id="newBarberName" maxlength="80" required placeholder="Nome del barbiere"><button class="gold-button" type="submit">Aggiungi</button></form><div id="barberList" class="client-list"></div></section></section>
-
-      </section>
-
-      <footer class="footer"><span>VERTEX BARBER MANAGER <i>•</i> VERTEX HAMMAMI</span><span>Gestione appuntamenti</span></footer>
-    </main>
-  </div>
-  <nav class="mobile-nav" id="mobileNav" aria-label="Navigazione mobile" hidden><button class="selected" data-view="agenda"><span>▦</span>Agenda</button><button data-view="clients"><span>♙</span>Clienti</button><button data-view="blocks"><span>◷</span>Blocchi</button><button data-view="team"><span>♧</span>Barbieri</button></nav>
-
- <dialog id="editDialog" class="edit-dialog"><form id="editForm"><div class="panel-heading"><div><p class="eyebrow">APPUNTAMENTO</p><h2>Modifica dati</h2></div><button id="closeEdit" class="refresh-button" type="button">×</button></div><label>Nome cliente<input id="editName" required maxlength="120"></label><label>Telefono<input id="editPhone" required maxlength="30"></label><label>Servizio<input id="editService" required maxlength="120"></label><div class="edit-grid"><label>Prezzo (€)<input id="editPrice" type="number" min="0" max="1000" step="0.01" required></label><label>Durata (minuti)<input id="editDuration" type="number" min="5" max="240" required></label><label>Data<input id="editDate" type="date" required></label><label>Ora<input id="editTime" type="time" required></label></div><div class="booking-actions"><button class="gold-button" type="submit">Salva modifica</button><button id="cancelEdit" class="booking-action secondary" type="button">Annulla</button></div></form></dialog>
+<div class="app-shell">
+<aside aria-label="Navigazione principale" class="rail">
+<a aria-label="VERTEX HAMMAMI" class="brand-mark" href="#home"><img alt="VERTEX HAMMAMI" class="brand-logo" src="logo.jpg"/></a>
+<button aria-label="Agenda" class="rail-link selected" data-view="agenda" title="Agenda">▦</button>
+<button aria-label="Clienti" class="rail-link" data-view="clients" title="Clienti">♙</button>
+<button aria-label="Orari bloccati" class="rail-link" data-view="blocks" title="Orari bloccati">◷</button>
+<button aria-label="Barbieri" class="rail-link" data-view="team" title="Barbieri">♧</button>
+<div class="rail-bottom"><span class="status-dot"></span></div>
+</aside>
+<main class="main-area">
+<header class="topbar">
+<div><div class="eyebrow">VERTEX HAMMAMI <span>•</span> GESTIONE</div><h1 id="pageTitle">Agenda</h1></div>
+<div class="top-actions"><span class="live-label"><b></b> VERTEX</span><button class="avatar" hidden="" id="logoutButton">Esci</button></div>
+</header>
+<section class="login-wrap" id="loginView"><div class="login-card"><img alt="VERTEX HAMMAMI" class="login-emblem" src="logo.jpg"/><p class="owner-name">MOEZ</p><p class="eyebrow">VERTEX HAMMAMI</p><h2>Accesso amministratore</h2><p class="muted">Entra nell’area riservata per gestire il negozio.</p><form id="loginForm"><label for="loginEmail">Email</label><input autocomplete="username" id="loginEmail" required="" type="email"/><label for="loginPassword">Password</label><input autocomplete="current-password" id="loginPassword" required="" type="password"/><button class="gold-button login-submit" id="loginButton" type="submit">Accedi <span>→</span></button></form><p class="form-message" hidden="" id="loginMessage" role="status"></p></div></section>
+<section hidden="" id="dashboardView">
+<div class="app-message" hidden="" id="appMessage" role="status"></div>
+<section class="panel notification-panel"><div><p class="eyebrow">AVVISI</p><h2>Notifiche appuntamenti</h2><p class="muted" id="pushStatus">Attiva le notifiche su questo dispositivo per ricevere gli avvisi.</p></div><div class="booking-actions"><button class="booking-action" id="enableNotifications" type="button">🔔 Attiva notifiche</button><button class="booking-action secondary" id="testPushNotification" type="button">Invia prova</button></div></section>
+<section class="view" id="agendaView">
+<div class="royal-hero"><div class="royal-hero-gradient"><img alt="VERTEX HAMMAMI" class="royal-hero-logo" src="logo.jpg"/><div class="royal-hero-brand">VERTEX<br/>HAMMAMI</div><div class="royal-hero-subtitle">BARBER SHOP</div></div></div><div class="royal-profile"><img alt="Moez Hammami" src="moez-profile.jpg"/><div><strong>Moez Hammami</strong><span>Barbiere · Titolare</span></div><div class="royal-live" title="Gestione attiva"></div></div><div class="welcome-row"><div><p class="eyebrow">PANORAMICA</p><h2>Il tuo negozio, sotto controllo.</h2><p class="muted">Una vista chiara della giornata e del mese.</p></div><button class="gold-button" id="todayButton">Oggi <span>↗</span></button></div>
+<div class="stats-grid">
+<article class="stat-card"><span class="stat-icon">◷</span><div class="stat-label">APPUNTAMENTI OGGI</div><strong id="todayCount">0</strong><small>nel calendario odierno</small></article>
+<article class="stat-card"><span class="stat-icon">◉</span><div class="stat-label">DA CONFERMARE</div><strong id="pendingCount">0</strong><small>in attesa della tua decisione</small></article>
+<article class="stat-card"><span class="stat-icon">＋</span><div class="stat-label">PRENOTAZIONI ATTIVE</div><strong id="activeCount">0</strong><small>confermate o in attesa</small></article>
+</div>
+<div class="content-grid">
+<section class="panel calendar-panel">
+<div class="panel-heading"><div><p class="eyebrow">CALENDARIO</p><h2 id="monthTitle">—</h2></div><div class="calendar-nav"><button aria-label="Mese precedente" id="prevMonth">‹</button><button aria-label="Mese successivo" id="nextMonth">›</button></div></div>
+<div aria-label="Calendario mensile" class="calendar-grid" id="calendarGrid"></div>
+<div class="calendar-legend"><span><i class="legend-dot"></i> Giorno selezionato</span><span><i class="legend-dot"></i> Appuntamento</span></div>
+</section>
+<section class="panel day-panel" id="dayPanel"><div class="panel-heading"><div><p class="eyebrow">DETTAGLIO</p><h2 id="selectedDateTitle">Seleziona un giorno</h2></div><span class="count-pill" id="dayCount">0</span></div><div class="day-appointments" id="dayAppointments"><div class="empty-state"><div class="empty-symbol">✦</div><strong>Seleziona una data</strong><p>Qui trovi i dettagli degli appuntamenti del giorno.</p></div></div></section>
+</div>
+<section class="panel schedule-panel"><div class="panel-heading"><div><p class="eyebrow">DISPONIBILITÀ</p><h2>Blocca un orario</h2></div></div><form class="block-form" id="blockForm"><label>Data<input id="blockDate" required="" type="date"/></label><label>Dalle<input id="blockStart" required="" type="time" value="13:00"/></label><label>Alle<input id="blockEnd" required="" type="time" value="13:30"/></label><label>Motivo<input id="blockReason" maxlength="100" required="" value="Pausa"/></label><button class="booking-action" type="submit">Blocca fascia</button></form><p class="muted">I blocchi impediscono nuove prenotazioni nello stesso orario.</p></section>
+<section class="panel appointments-panel" id="appointmentsPanel"><div class="panel-heading list-heading"><div><p class="eyebrow">TUTTO IL MESE</p><h2>Elenco appuntamenti</h2></div><div class="list-tools"><label class="filter-label">Stato <select id="statusFilter"><option value="all">Tutti</option><option value="pending">In attesa</option><option value="confirmed">Confermati</option><option value="rejected">Rifiutati</option><option value="cancelled">Annullati</option><option value="blocked">Orari bloccati</option></select></label><button class="refresh-button" id="refreshButton" title="Aggiorna" type="button">↻</button></div></div><div id="monthAppointments"></div></section>
+</section>
+<section class="view secondary-view" hidden="" id="clientsView"><div class="welcome-row"><div><p class="eyebrow">RAPPORTI</p><h2>Clienti</h2><p class="muted">Contatta i clienti, modifica la loro ultima prenotazione attiva o elimina la scheda quando hanno terminato.</p></div></div><section class="panel"><div class="search-box">⌕ <input id="clientSearch" placeholder="Cerca nome o telefono" type="search"/><span>Rubrica</span></div><div class="client-list" id="clientList"></div></section></section>
+<section class="view secondary-view" hidden="" id="blocksView"><div class="welcome-row"><div><p class="eyebrow">DISPONIBILITÀ</p><h2>Orari bloccati</h2><p class="muted">Qui trovi solo le fasce orarie bloccate. Puoi sbloccarle quando vuoi.</p></div><button class="refresh-button" id="refreshBlocksButton" title="Aggiorna" type="button">↻</button></div><section class="panel"><div class="day-appointments" id="blockedTimesList"></div></section></section>
+<section class="view secondary-view" hidden="" id="teamView"><div class="welcome-row"><div><p class="eyebrow">PERSONALE</p><h2>Barbieri</h2><p class="muted">Gestione del team VERTEX.</p></div></div><section class="panel"><form class="add-barber-form" id="addBarberForm"><label for="newBarberName">Aggiungi un nome</label><input id="newBarberName" maxlength="80" placeholder="Nome del barbiere" required=""/><button class="gold-button" type="submit">Aggiungi</button></form><div class="client-list" id="barberList"></div></section></section>
+</section>
+<footer class="footer"><span>VERTEX BARBER MANAGER <i>•</i> VERTEX HAMMAMI</span><span>Gestione appuntamenti</span></footer>
+</main>
+</div>
+<nav aria-label="Navigazione mobile" class="mobile-nav" hidden="" id="mobileNav"><button class="selected" data-view="agenda"><span>▦</span>Agenda</button><button data-view="clients"><span>♙</span>Clienti</button><button data-view="blocks"><span>◷</span>Blocchi</button><button data-view="team"><span>♧</span>Barbieri</button></nav>
+<dialog class="edit-dialog" id="editDialog"><form id="editForm"><div class="panel-heading"><div><p class="eyebrow">APPUNTAMENTO</p><h2>Modifica dati</h2></div><button class="refresh-button" id="closeEdit" type="button">×</button></div><label>Nome cliente<input id="editName" maxlength="120" required=""/></label><label>Telefono<input id="editPhone" maxlength="30" required=""/></label><label>Servizio<input id="editService" maxlength="120" required=""/></label><div class="edit-grid"><label>Prezzo (€)<input id="editPrice" max="1000" min="0" required="" step="0.01" type="number"/></label><label>Durata (minuti)<input id="editDuration" max="240" min="5" required="" type="number"/></label><label>Data<input id="editDate" required="" type="date"/></label><label>Ora<input id="editTime" required="" type="time"/></label></div><div class="booking-actions"><button class="gold-button" type="submit">Salva modifica</button><button class="booking-action secondary" id="cancelEdit" type="button">Annulla</button></div></form></dialog>
 <script>document.querySelector('#blocksView .panel').before(document.querySelector('.schedule-panel'));</script>
-  <script src="vertex-apex.js?v=7"></script>
+<script src="vertex-apex.js?v=7"></script>
 </body>
 </html>
