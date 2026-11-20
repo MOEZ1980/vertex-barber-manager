@@ -21,6 +21,6 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = `${self.location.origin}/`;
+  const url = `${self.location.origin}/?view=bookings&status=pending`;
   event.waitUntil(self.clients.openWindow(url));
 });
