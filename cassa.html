@@ -39,6 +39,16 @@ small{color:#bcbcbc}
 </div>
 
 <section class="card">
+  <h2>Registro pagamenti</h2>
+  <div class="grid">
+    <button type="button" onclick="showPayments('card')">💳 Pagato carta</button>
+    <button type="button" onclick="showPayments('cash')">💶 Pagato contanti</button>
+    <button type="button" onclick="showPayments('debt')">🕒 Da pagare</button>
+  </div>
+  <div id="paymentDetails"></div>
+</section>
+
+<section class="card">
 <h2>Nuovo movimento</h2>
 <form id="form">
 <label>Data</label>
@@ -97,7 +107,39 @@ const euro=n=>Number(n).toLocaleString('it-IT',{style:'currency',currency:'EUR'}
 const dateLocal=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 el('date').value=dateLocal();
 el('month').value=dateLocal().slice(0,7);
-function refresh(){
+
+function showPayments(type) {
+  const area = document.getElementById('paymentDetails');
+  const labels = {
+    card: 'Pagato carta',
+    cash: 'Pagato contanti',
+    debt: 'Da pagare'
+  };
+  const items = records.filter(r => r.payment === type);
+  area.replaceChildren();
+
+  const title = document.createElement('h3');
+  title.textContent = labels[type] + ' — ' +
+    euro(items.reduce((sum, r) => sum + r.amount, 0));
+  area.appendChild(title);
+
+  if (!items.length) {
+    const empty = document.createElement('p');
+    empty.textContent = 'Nessun movimento';
+    area.appendChild(empty);
+    return;
+  }
+
+  items.sort((a, b) => b.date.localeCompare(a.date)).forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'entry';
+    row.textContent = r.date + ' · ' + r.client +
+      ' · ' + r.service + ' · ' + euro(r.amount);
+    area.appendChild(row);
+  });
+}
+
+  function refresh(){
  const today=dateLocal(),month=el('month').value;
  const daily=records.filter(r=>r.date===today);
  const sum=(items,p)=>items.filter(r=>r.payment===p).reduce((a,r)=>a+r.amount,0);
