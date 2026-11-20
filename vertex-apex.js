@@ -157,7 +157,8 @@
   }
   function renderBookingCard(booking) {
     const blocked = isBlockedTime(booking);
-    const card = document.createElement('article'); card.className = `booking-card ${blocked ? 'blocked' : ''}`;
+   const card = document.createElement('article'); card.className = `booking-card ${blocked ? 'blocked' : ''}`;
+  card.dataset.bookingId = String(booking.id);
     const heading = document.createElement('div'); heading.className = 'booking-heading';
     const name = document.createElement('strong'); name.textContent = blocked ? 'Orario bloccato' : booking.customer_name || 'Cliente';
     const time = document.createElement('span'); time.textContent = `${bookingTime(booking.starts_at)}${booking.ends_at ? ` – ${bookingTime(booking.ends_at)}` : ''}`;
@@ -207,7 +208,28 @@
       const data = await api(API_BOOKINGS, { action: 'list' });
       const list = Array.isArray(data) ? data : Array.isArray(data.bookings) ? data.bookings : Array.isArray(data.data) ? data.data : null;
       if (!list) throw new Error('Il servizio ha restituito un formato inatteso.');
-      bookings = list; busy = false; renderAll(); if (!$('#blocksView').hidden) renderBlockedTimes(); message(`Aggiornato · ${bookings.length} prenotazioni`, 'success');
+      bookings = list; busy = false; renderAll();
+
+const notificationId = new URLSearchParams(window.location.search).get("booking_id");
+const targetBooking = bookings.find(b => String(b.id) === notificationId);
+
+if (notificationId && targetBooking) {
+  const date = new Date(targetBooking.starts_at);
+  visibleMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  setSelectedDate(date);
+document.querySelector('[data-view="agenda"]')?.click();
+
+requestAnimationFrame(() => {
+  const card = [...document.querySelectorAll('[data-booking-id]')]
+    .find(el => el.dataset.bookingId === notificationId);
+
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.style.outline = "3px solid #D4AF37";
+  }
+});
+
+} if (!$('#blocksView').hidden) renderBlockedTimes(); message(`Aggiornato · ${bookings.length} prenotazioni`, 'success');
     } catch (error) { message(`Aggiornamento non riuscito: ${error.message}`, 'error'); }
     finally { busy = false; $('#refreshButton').disabled = false; $('#refreshButton').textContent = '↻'; }
   }
