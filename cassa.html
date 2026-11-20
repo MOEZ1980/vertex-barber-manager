@@ -78,6 +78,19 @@ small{color:#bcbcbc}
 </main>
 <script>
 const key='vertex_cassa_demo';
+const prezzi = {
+  'Taglio capelli': 15,
+  'Capelli e shampoo': 17,
+  'Capelli e barba': 20,
+  'Capelli, barba e shampoo': 22
+};
+
+document.getElementById('service').addEventListener('change', function() {
+  document.getElementById('amount').value = prezzi[this.value] ?? '';
+});
+
+document.getElementById('amount').value = prezzi[document.getElementById('service').value] ?? '';
+
 let records=JSON.parse(localStorage.getItem(key)||'[]');
 const el=id=>document.getElementById(id);
 const euro=n=>Number(n).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
