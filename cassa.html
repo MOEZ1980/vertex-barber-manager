@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -8,187 +7,164 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#101010;color:#f4f0e8;font-family:Arial,sans-serif;padding:18px}
-main{max-width:850px;margin:auto}
-h1,h2{color:#d5a84e}
+main{max-width:850px;margin:auto} h1,h2{color:#d5a84e}
 header{text-align:center;border-bottom:1px solid #695127;padding:15px}
 .card{background:#1d1d1d;border:1px solid #554224;border-radius:14px;padding:16px;margin:14px 0}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .value{font-size:27px;color:#edc56d;font-weight:bold;margin-top:8px}
 label{display:block;margin:12px 0 5px;color:#d8c59c}
 input,select,button{width:100%;padding:13px;border-radius:9px;font-size:16px}
 input,select{background:#292929;border:1px solid #66512d;color:white}
 button{background:#c99b43;color:#111;border:0;font-weight:bold;cursor:pointer;margin-top:12px}
-.secondary{background:#333;color:#f4d48a}
-.entry{padding:12px 0;border-bottom:1px solid #444}
-small{color:#bcbcbc}
-.warning{color:#f2c579;font-size:13px}
+button:disabled{opacity:.45;cursor:wait}.secondary{background:#333;color:#f4d48a}
+.entry{padding:12px 0;border-bottom:1px solid #444}small{color:#bcbcbc}
+.warning{color:#f2c579;font-size:13px}.status{padding:12px;border-radius:9px;background:#28221a;color:#f2d092;margin:10px 0}
+.hidden{display:none!important}.back{display:inline-block;background:#d49a2f;color:#111;padding:12px 16px;border-radius:10px;font-weight:bold;text-decoration:none;margin-bottom:15px}
+@media(max-width:400px){.value{font-size:22px}.card{padding:12px}.grid{gap:7px}}
 </style>
 </head>
 <body>
-  
-<a href="/index.html" style="display:inline-block;background:#d49a2f;color:#111;padding:12px 16px;border-radius:10px;font-weight:bold;text-decoration:none;margin-bottom:15px">⬅ Torna all'Admin</a>
-
+<a class="back" href="/index.html">⬅ Torna all'Admin</a>
 <main>
-<header>
-<h1>VERTEX HAMMAMI</h1>
-<p>Cassa & Contabilità</p>
-</header>
-
+<header><h1>VERTEX HAMMAMI</h1><p>Cassa &amp; Contabilità</p></header>
+<div id="status" class="status" role="status">Verifica accesso amministratore…</div>
+<div id="content" class="hidden">
 <div class="grid">
 <div class="card">Incassato oggi<div class="value" id="today">0,00 €</div></div>
 <div class="card">Contanti<div class="value" id="cash">0,00 €</div></div>
 <div class="card">Carta<div class="value" id="card">0,00 €</div></div>
 <div class="card">Da incassare<div class="value" id="debt">0,00 €</div></div>
 </div>
-
-<section class="card">
-  <h2>Registro pagamenti</h2>
-  <div class="grid">
-    <button type="button" onclick="showPayments('card')">💳 Pagato carta</button>
-    <button type="button" onclick="showPayments('cash')">💶 Pagato contanti</button>
-    <button type="button" onclick="showPayments('debt')">🕒 Da pagare</button>
-  </div>
-  <div id="paymentDetails"></div>
-</section>
-
-<section class="card">
-<h2>Nuovo movimento</h2>
-<form id="form">
-<label>Data</label>
-<input type="date" id="date" required>
-<label>Cliente</label>
-<input id="client" placeholder="Nome cliente" maxlength="100" required>
-<label>Servizio</label>
-<select id="service">
-<option>Taglio capelli</option>
-<option>Capelli e shampoo</option>
-<option>Capelli e barba</option>
-<option>Capelli, barba e shampoo</option>
-<option>Barba</option>
-<option>Altro servizio</option>
-</select>
-<label>Importo (€)</label>
-<input type="number" id="amount" min="0.01" step="0.01" required>
-<label>Pagamento</label>
-<select id="payment">
-<option value="cash">Pagato contanti</option>
-<option value="card">Pagato carta</option>
-<option value="debt">Da pagare / Debito</option>
-</select>
-<button type="submit">Salva movimento</button>
-</form>
-</section>
-
-<section class="card">
-<h2>Registro clienti</h2>
-<label>Visualizza mese</label>
-<input type="month" id="month">
-<div id="entries"></div>
-<button class="secondary" id="export" type="button">Esporta CSV</button>
-</section>
-
-<p class="warning">Versione provvisoria: i dati sono salvati soltanto in questo browser. Non inserire dati reali dei clienti finché non colleghiamo l'accesso riservato e il database Supabase.</p>
-</main>
+<section class="card"><h2>Registro pagamenti</h2>
+<div class="grid"><button type="button" data-payments="card">💳 Pagato carta</button><button type="button" data-payments="cash">💶 Pagato contanti</button><button type="button" data-payments="debt">🕒 Da pagare</button></div>
+<div id="paymentDetails"></div></section>
+<section class="card"><h2>Nuovo movimento</h2><form id="form">
+<label for="date">Data</label><input type="date" id="date" required>
+<label for="client">Cliente</label><input id="client" placeholder="Nome cliente" maxlength="100" autocomplete="off" required>
+<label for="service">Servizio</label><select id="service"><option>Taglio capelli</option><option>Capelli e shampoo</option><option>Capelli e barba</option><option>Capelli, barba e shampoo</option><option>Barba</option><option>Altro servizio</option></select>
+<label for="amount">Importo (€)</label><input type="number" id="amount" min="0.01" step="0.01" required>
+<label for="payment">Pagamento</label><select id="payment"><option value="cash">Pagato contanti</option><option value="card">Pagato carta</option><option value="debt">Da pagare / Debito</option></select>
+<button type="submit" id="saveButton">Salva movimento</button></form></section>
+<section class="card"><h2>Registro clienti</h2><label for="month">Visualizza mese</label><input type="month" id="month"><div id="entries"></div><button class="secondary" id="export" type="button">Esporta CSV</button></section>
+<p class="warning">I movimenti vengono inviati al database Supabase solo dopo la conferma del server. Verificare il funzionamento con dati di prova prima di inserire dati reali.</p>
+</div></main>
 <script>
-const key='vertex_cassa_demo';
-const prezzi = {
-  'Taglio capelli': 15,
-  'Capelli e shampoo': 17,
-  'Capelli e barba': 20,
-  'Capelli, barba e shampoo': 22
-};
-
-document.getElementById('service').addEventListener('change', function() {
-  document.getElementById('amount').value = prezzi[this.value] ?? '';
-});
-
-document.getElementById('amount').value = prezzi[document.getElementById('service').value] ?? '';
-
-let records=JSON.parse(localStorage.getItem(key)||'[]');
+'use strict';
+// Questa pagina usa esclusivamente la Edge Function vertex-cassa.
+// Non contiene service_role e non tocca le prenotazioni.
+const SB_URL='https://xdyrujptrggyhltljmlm.supabase.co';
+const FUNCTION_URL=SB_URL+'/functions/v1/vertex-cassa';
+const SESSION_KEY='vertex_royal_gold_auth_v1';
 const el=id=>document.getElementById(id);
-const euro=n=>Number(n).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+const euro=n=>Number(n||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
 const dateLocal=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
-el('date').value=dateLocal();
-el('month').value=dateLocal().slice(0,7);
-
-function showPayments(type) {
-  const area = document.getElementById('paymentDetails');
-  const labels = {
-    card: 'Pagato carta',
-    cash: 'Pagato contanti',
-    debt: 'Da pagare'
-  };
-  const items = records.filter(r => r.payment === type);
-  area.replaceChildren();
-
-  const title = document.createElement('h3');
-  title.textContent = labels[type] + ' — ' +
-    euro(items.reduce((sum, r) => sum + r.amount, 0));
-  area.appendChild(title);
-
-  if (!items.length) {
-    const empty = document.createElement('p');
-    empty.textContent = 'Nessun movimento';
-    area.appendChild(empty);
-    return;
-  }
-
-  items.sort((a, b) => b.date.localeCompare(a.date)).forEach(r => {
-    const row = document.createElement('div');
-    row.className = 'entry';
-    row.textContent = r.date + ' · ' + r.client +
-      ' · ' + r.service + ' · ' + euro(r.amount);
-    area.appendChild(row);
-  });
+const prezzi={'Taglio capelli':15,'Capelli e shampoo':17,'Capelli e barba':20,'Capelli, barba e shampoo':22};
+let records=[];
+let currentView=null;
+let busy=false;
+function status(message,error=false){el('status').textContent=message;el('status').style.color=error?'#ffb1a8':'#f2d092';}
+function getSession(){
+ let data;
+ try{data=JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{return null}
+ if(!data||typeof data!=='object')return null;
+ const token=data.access_token||data.accessToken||data.session?.access_token||data.session?.accessToken;
+ const expires=data.expires_at||data.expiresAt||data.session?.expires_at||data.session?.expiresAt;
+ if(!token||typeof token!=='string')return null;
+ if(expires && Number(expires)*(Number(expires)>1e12?1:1000)<=Date.now())return null;
+ return token;
 }
-
-  function refresh(){
+async function api(action,fields={}){
+ const token=getSession();
+ if(!token)throw new Error('Sessione scaduta. Torna all’Admin ed effettua nuovamente l’accesso.');
+ const res=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({action,...fields}),cache:'no-store'});
+ const raw=await res.text();let data={};try{data=JSON.parse(raw)}catch{}
+ if(!res.ok||data.ok===false||data.error){
+  if(res.status===401||res.status===403)throw new Error('Accesso non autorizzato. Torna all’Admin e accedi di nuovo.');
+  throw new Error(typeof data.error==='string'?data.error:'Errore del server ('+res.status+').');
+ }
+ return data;
+}
+function normalize(row){
+ return {id:row.id,date:String(row.data??row.date??'').slice(0,10),client:String(row.cliente??row.client??''),service:String(row.servizio??row.service??''),amount:Number(row.importo??row.amount??0),payment:String(row.pagamento??row.payment??'')};
+}
+async function reload(){
+ status('Caricamento movimenti da Supabase…');
+ const response=await api('list');
+ const rows=Array.isArray(response)?response:(response.movimenti??response.records??response.data);
+ if(!Array.isArray(rows))throw new Error('La funzione vertex-cassa non ha restituito un elenco valido. Controllare il formato della risposta.');
+ records=rows.map(normalize);
+ el('content').classList.remove('hidden');
+ refresh();
+ if(currentView)showPayments(currentView);
+ status('Dati sincronizzati con Supabase.');
+}
+function showPayments(type){
+ currentView=type;
+ const area=el('paymentDetails');area.replaceChildren();
+ const labels={card:'Pagato carta',cash:'Pagato contanti',debt:'Da pagare'};
+ const items=records.filter(r=>r.payment===type).sort((a,b)=>b.date.localeCompare(a.date));
+ const heading=document.createElement('h3');heading.textContent=labels[type]+' — '+euro(items.reduce((s,r)=>s+r.amount,0));area.append(heading);
+ if(!items.length){const p=document.createElement('p');p.textContent='Nessun movimento';area.append(p);return}
+ items.forEach(r=>{const row=document.createElement('div');row.className='entry';row.textContent=r.date+' · '+r.client+' · '+r.service+' · '+euro(r.amount);area.append(row)});
+}
+function refresh(){
  const today=dateLocal(),month=el('month').value;
  const daily=records.filter(r=>r.date===today);
- const sum=(items,p)=>items.filter(r=>r.payment===p).reduce((a,r)=>a+r.amount,0);
+ const sum=(a,p)=>a.filter(r=>r.payment===p).reduce((s,r)=>s+r.amount,0);
  el('cash').textContent=euro(sum(daily,'cash'));
  el('card').textContent=euro(sum(daily,'card'));
  el('today').textContent=euro(sum(daily,'cash')+sum(daily,'card'));
  el('debt').textContent=euro(sum(records,'debt'));
  const area=el('entries');area.replaceChildren();
- records.filter(r=>r.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{
+ const filtered=records.filter(r=>r.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date));
+ if(!filtered.length){const p=document.createElement('p');p.textContent='Nessun movimento in questo mese';area.append(p)}
+ filtered.forEach(r=>{
   const div=document.createElement('div');div.className='entry';
-  const title=document.createElement('strong');
-  title.textContent=r.client+' — '+euro(r.amount);
-  const detail=document.createElement('div');
-  detail.textContent=r.date+' · '+r.service+' · '+({cash:'Pagato contanti',card:'Pagato carta',debt:'Da pagare'}[r.payment]);
-  const button=document.createElement('button');button.className='secondary';
-  button.textContent=r.payment==='debt'?'Segna come pagato':'Elimina';
-  button.onclick=()=>{
+  const title=document.createElement('strong');title.textContent=r.client+' — '+euro(r.amount);
+  const detail=document.createElement('div');detail.textContent=r.date+' · '+r.service+' · '+({cash:'Pagato contanti',card:'Pagato carta',debt:'Da pagare'}[r.payment]||r.payment);
+  const button=document.createElement('button');button.className='secondary';button.textContent=r.payment==='debt'?'Segna come pagato':'Elimina';
+  button.onclick=async()=>{
+   if(busy)return;
+   let action,values={id:r.id};
    if(r.payment==='debt'){
-    const p=prompt('Metodo di pagamento: contanti oppure carta?');
-    if(!p)return;
-    const v=p.toLowerCase().trim();
-    if(!['contanti','carta'].includes(v)){alert('Inserisci contanti oppure carta');return}
-    r.payment=v==='carta'?'card':'cash';
-   }else if(confirm('Eliminare questo movimento?')){
-    records=records.filter(x=>x.id!==r.id);
-   }else return;
-   save();
+    const input=prompt('Metodo di pagamento: contanti oppure carta?');if(input===null)return;
+    const v=input.toLowerCase().trim();if(v!=='contanti'&&v!=='carta'){alert('Inserisci contanti oppure carta');return}
+    action='update';values={id:r.id,pagamento:v==='carta'?'card':'cash'};
+   }else{
+    if(!confirm('Eliminare questo movimento?'))return;
+    action='delete';
+   }
+   try{busy=true;button.disabled=true;await api(action,values);await reload()}
+   catch(err){status(err.message,true);alert('Operazione non completata: '+err.message)}
+   finally{busy=false;button.disabled=false}
   };
   div.append(title,detail,button);area.append(div);
  });
 }
-function save(){localStorage.setItem(key,JSON.stringify(records));refresh()}
-el('form').onsubmit=e=>{
- e.preventDefault();
- records.push({id:crypto.randomUUID(),date:el('date').value,client:el('client').value.trim(),service:el('service').value,amount:Number(el('amount').value),payment:el('payment').value});
- save();e.target.reset();el('date').value=dateLocal();
+el('form').onsubmit=async e=>{
+ e.preventDefault();if(busy)return;
+ const data=el('date').value,cliente=el('client').value.trim(),servizio=el('service').value;
+ const importo=Number(el('amount').value),pagamento=el('payment').value;
+ if(!data||!cliente||!Number.isFinite(importo)||importo<=0||!['cash','card','debt'].includes(pagamento)){alert('Verifica i dati inseriti.');return}
+ try{
+  busy=true;el('saveButton').disabled=true;status('Salvataggio in Supabase…');
+  await api('create',{data,cliente,servizio,importo,pagamento});
+  await reload();e.target.reset();el('date').value=dateLocal();el('amount').value=prezzi[el('service').value]??'';
+ }catch(err){status(err.message,true);alert('Movimento non salvato: '+err.message)}
+ finally{busy=false;el('saveButton').disabled=false}
 };
+el('service').onchange=()=>{el('amount').value=prezzi[el('service').value]??''};
 el('month').onchange=refresh;
+document.querySelectorAll('[data-payments]').forEach(b=>b.addEventListener('click',()=>showPayments(b.dataset.payments)));
 el('export').onclick=()=>{
  const rows=[['Data','Cliente','Servizio','Importo','Pagamento'],...records.map(r=>[r.date,r.client,r.service,r.amount,r.payment])];
- const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\r\n');
- const a=document.createElement('a');
- a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
- a.download='vertex-cassa.csv';a.click();URL.revokeObjectURL(a.href);
+ const safe=v=>{let s=String(v??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"'};
+ const csv=rows.map(row=>row.map(safe).join(';')).join('\r\n');
+ const link=document.createElement('a');const url=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));link.href=url;link.download='vertex-cassa.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
 };
-refresh();
+el('date').value=dateLocal();el('month').value=dateLocal().slice(0,7);el('amount').value=prezzi[el('service').value];
+if(!getSession())status('Accesso richiesto: apri l’Admin, effettua il login, poi torna alla Cassa.',true);
+else reload().catch(err=>status(err.message,true));
 </script>
 </body>
 </html>
