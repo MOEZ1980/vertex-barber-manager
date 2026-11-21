@@ -5,10 +5,9 @@
 .vertex-back:focus-visible{outline:3px solid white}
 @media(min-width:900px){.vertex-back{display:none}}
 </style></head><body><a class="vertex-back" href="/index.html" aria-label="Torna all’Admin">← Torna all’Admin</a><main>
-<h1>✂ VERTEX HAMMAMI</h1><p>Controllo dello schermo clienti · Accesso solo tramite Admin</p><p id="status">Verifica accesso…</p>
-<section><h2>Offerte sullo schermo</h2><p class="note">Le promozioni non vengono pubblicate finché non le salvi. Si aggiornano sullo schermo aperto nello stesso browser del PC.</p><div id="offers"></div><button id="save">Salva e aggiorna schermo</button><a class="btn" href="/VERTEX_SCHERMO_LIVE.html" target="_blank" rel="noopener">Apri schermo clienti</a></section>
-<section><h2>Nomi dei clienti · consenso</h2><p class="note">Il nome è nascosto per impostazione predefinita. Attiva il nome SOLO dopo aver ricevuto il consenso del cliente per mostrarlo sul televisore. Nessun numero di telefono sarà visualizzato. La scelta vale soltanto per questo browser/PC.</p><div id="bookings"></div><button id="reload">Aggiorna prenotazioni</button></section>
-<p class="note">Non pubblicare questo pannello come pagina accessibile senza login. I dati di nome/telefono sono recuperati temporaneamente dall’Admin solo per la gestione del consenso, senza mostrarne il telefono sullo schermo clienti.</p>
+<h1>✂ VERTEX HAMMAMI</h1><p id="status" role="status">Verifica accesso…</p>
+<section><h2>Offerte sullo schermo</h2><div id="offers"></div><button id="save">Salva e aggiorna schermo</button><a class="btn" href="/VERTEX_SCHERMO_LIVE.html" target="_blank" rel="noopener">Apri schermo clienti</a></section>
+<section><h2>Nomi dei clienti · consenso</h2><div id="bookings"></div><button id="reload">Aggiorna prenotazioni</button></section>
 </main><script>
 'use strict';const SB_URL='https://xdyrujptrggyhltljmlm.supabase.co',SB_KEY='sb_publishable_PJLP34HkqWKZbwhsN65KKA_12wdK7V8',SESSION_KEY='vertex_royal_gold_auth_v1',DISPLAY_KEY='vertex_schermo_live_settings_v1';const $=x=>document.getElementById(x);
 const initialOffers=[{tag:'BENVENUTI',title:'VERTEX HAMMAMI',detail:'Il tuo stile, la nostra passione.'},{tag:'PRENOTA ONLINE',title:'WWW.VERTEXHAMMAMI.IT',detail:'Prenota il tuo appuntamento online.'},{tag:'NOVITÀ',title:'LE NOSTRE OFFERTE',detail:'Chiedi in negozio le promozioni disponibili.'}];
