@@ -43,16 +43,16 @@ function vertexBookingCode(id){let h=2166136261;for(const c of String(id)){h^=c.
 function messageFor(kind,x,previous){
  const when=`${localDate(x.date)} alle ${x.start}`;
  if(kind==='confirm')return [
-  `Ciao ${x.name}! ✂️`,
-  'Il tuo appuntamento da VERTEX HAMMAMI è confermato! ✅',
-  `📅 ${when}`,
-  `💈 ${x.service}`,
-  `🎟️ Codice di conferma: ${vertexBookingCode(x.id)}`,
+  `Ciao ${x.name}!`,
+  'Il tuo appuntamento da VERTEX HAMMAMI è confermato!',
+  `Data e ora: ${when}`,
+  `Servizio: ${x.service}`,
+  `Codice di conferma: ${vertexBookingCode(x.id)}`,
   '',
-  '📍 Via Terraglio 111, Frescada, Preganziol (TV)',
+  'Via Terraglio 111, Frescada, Preganziol (TV)',
   MAPS_URL,
   '',
-  'Ti aspettiamo! ⭐⭐⭐⭐⭐',
+  'Ti aspettiamo! ★★★★★',
   'VERTEX HAMMAMI'
  ].join('\n');
  if(kind==='reject')return [
