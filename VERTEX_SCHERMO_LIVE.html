@@ -35,6 +35,9 @@
  .offer-title{font-size:clamp(34px,5vh,85px)}
  .offer-detail{font-size:clamp(18px,2.5vh,38px)}
 }
+/* Mantieni il dominio leggibile su una sola riga, senza tagli */
+.offer-title{max-width:100%;min-width:0}
+.offer-title.is-website{white-space:nowrap;overflow-wrap:normal;word-break:normal;letter-spacing:-.025em}
 </style></head>
 <body><a class="vertex-back" href="/index.html" aria-label="Torna all’Admin">← Torna all’Admin</a><div class="screen"><header class="head"><div class="brand">✂ VERTEX HAMMAMI <small>BENVENUTI NEL NOSTRO BARBER SHOP</small></div><div class="time"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div></header><main class="body"><section class="panel"><h2 class="heading">APPUNTAMENTI DI OGGI</h2><div class="rows" id="appointments"></div></section><section class="panel"><h2 class="heading">NOVITÀ &amp; OFFERTE</h2><div id="offer" class="offer" aria-live="polite"></div></section></main><footer class="footer"><span>Via Terraglio 111 · Frescada, Preganziol</span><span>PRENOTA SU www.vertexhammami.it</span></footer></div>
 <script>
@@ -67,8 +70,18 @@ let bookings=[],slide=0,busy=false;
 function draw(){const opt=settings();const d=today();let current=bookings.filter(x=>x.status==='confirmed'&&!isBlock(x)&&x.starts_at&&romeParts(x.starts_at).date===d).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at)).slice(0,5);
  const root=$('appointments');root.replaceChildren();for(const b of current){const row=document.createElement('div');row.className='appointment';const when=romeParts(b.starts_at);const at=document.createElement('div');at.className='at';at.textContent=when.hour;const info=document.createElement('div');const code=document.createElement('div');code.className='code';const name=opt.consents?.[String(b.id)]===true?bookingName(b.customer_name):'';code.textContent=(name?name+' · ':'')+bookingCode(b.id);info.append(code);row.append(at,info);root.append(row)}
  if(!current.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='Nessun appuntamento oggi';root.append(empty)}showOffer()}
-function showOffer(){const offers=settings().offers.filter(x=>x&&typeof x==='object');const arr=offers.length?offers:DEFAULT_OFFERS;const o=arr[slide%arr.length];const box=$('offer');box.replaceChildren();for(const [cl,value] of [['offer-kicker',o.tag],['offer-title',o.title],['offer-detail',o.detail]]){const x=document.createElement('div');x.className=cl;x.textContent=String(value||'');box.append(x)}}
+function fitWebsiteTitle(){
+ const title=document.querySelector('#offer .offer-title.is-website');
+ if(!title)return;
+ // Calcola lo spazio disponibile nell'offerta senza modificare i dati salvati.
+ const available=Math.max(160,$('offer').clientWidth-8);
+ title.style.fontSize='';
+ let font=parseFloat(getComputedStyle(title).fontSize)||48;
+ title.style.fontSize=font+'px';
+ while(title.scrollWidth>available && font>14){font-=1;title.style.fontSize=font+'px'}
+}
+function showOffer(){const offers=settings().offers.filter(x=>x&&typeof x==='object');const arr=offers.length?offers:DEFAULT_OFFERS;const o=arr[slide%arr.length];const box=$('offer');box.replaceChildren();for(const [cl,value] of [['offer-kicker',o.tag],['offer-title',o.title],['offer-detail',o.detail]]){const x=document.createElement('div');x.className=cl;x.textContent=String(value||'');if(cl==='offer-title' && /^(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+\/?$/i.test(x.textContent.trim()))x.classList.add('is-website');box.append(x)}fitWebsiteTitle()}
 function clock(){const now=new Date();$('clock').textContent=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',hour:'2-digit',minute:'2-digit'}).format(now);$('date').textContent=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(now)}
 async function refresh(){if(busy)return;busy=true;try{bookings=await fetchBookings();draw()}catch(e){bookings=[];draw();console.warn('Schermo clienti:',e.message)}finally{busy=false}}
-window.addEventListener('storage',e=>{if(e.key===DISPLAY_KEY)draw();if(e.key===SESSION_KEY)refresh()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});clock();draw();refresh();setInterval(clock,1000);setInterval(()=>{slide++;showOffer()},9000);setInterval(refresh,30000);
+window.addEventListener('resize',fitWebsiteTitle);window.addEventListener('storage',e=>{if(e.key===DISPLAY_KEY)draw();if(e.key===SESSION_KEY)refresh()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});clock();draw();refresh();setInterval(clock,1000);setInterval(()=>{slide++;showOffer()},9000);setInterval(refresh,30000);
 </script></body></html>
