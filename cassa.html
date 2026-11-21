@@ -90,9 +90,9 @@ function getToken(){
  if(exp&&Number(exp)*(Number(exp)>1e12?1:1000)<=Date.now())return null;
  return token;
 }
-async function api(action,fields={}){
+async function api(action,fields={},url=FUNCTION_URL){
  const token=getToken();if(!token)throw new Error('Sessione scaduta. Torna all’Admin ed effettua il login.');
- const response=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,...fields}),cache:'no-store',signal:AbortSignal.timeout(15000)});
+ const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',apikey:"sb_publishable_PJLP34HkqWKZbwhsN65KKA_12wdK7V8",Authorization:'Bearer '+token},body:JSON.stringify({action,...fields}),cache:'no-store',signal:AbortSignal.timeout(15000)});
  let body={};try{body=await response.json()}catch{}
  if(!response.ok||body.error||body.ok===false){
   if(response.status===401||response.status===403)throw new Error('Accesso riservato. Accedi nuovamente dall’Admin.');
@@ -101,32 +101,32 @@ async function api(action,fields={}){
  return body;
 }
 function normal(row){
- return {id:String(row.booking_id??''),name:String(row.cliente??''),service:String(row.servizio??''),amount:Number(row.importo??0),at:String(row.starts_at??''),payment:String(row.pagamento??'unpaid'),paidAt:row.payment_updated_at?String(row.payment_updated_at):null};
+ return {id:String(row.booking_id??''),service:String(row.servizio??''),amount:Number(row.importo??0),at:String(row.starts_at??''),payment:String(row.pagamento??'unpaid'),paidAt:row.payment_updated_at?String(row.payment_updated_at):null};
 }
 function displayRows(){
  const month=el('month').value,filter=el('filter').value;
- const filtered=rows.filter(r=>r.at&&localDay(r.at).startsWith(month)&&(filter==='all'||r.payment===filter));
+ const filtered=rows.filter(r=>r.at&&localDay(r.at).startsWith(month)&&(filter==='all'||(r.end<=Date.now()&&r.payment===filter)));
  const area=el('entries');area.replaceChildren();
  if(!filtered.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='Nessuna prenotazione per questo filtro';area.append(empty);return}
  filtered.forEach(r=>{
   const wrap=document.createElement('div');wrap.className='booking';
   const head=document.createElement('div');head.className='booking-head';
   const left=document.createElement('div');
-  const name=document.createElement('div');name.className='name';name.textContent=r.name||'Cliente senza nome';
   const description=document.createElement('div');description.className='meta';description.textContent=localDay(r.at)+' · '+localTime(r.at)+' · '+r.service;
-  const badge=document.createElement('span');badge.className='pill';badge.textContent=({unpaid:'Non pagato',cash:'Pagato contanti',card:'Pagato carta'})[r.payment]||'Non pagato';
-  left.append(name,description,badge);if(r.paidAt&&(r.payment==='cash'||r.payment==='card')){const paidInfo=document.createElement('div');paidInfo.className='meta';paidInfo.textContent='Registrato il '+localDay(r.paidAt)+' alle '+localTime(r.paidAt);left.append(paidInfo)}
+  const badge=document.createElement('span');badge.className='pill';badge.textContent=r.end>Date.now()?'Pagamento disponibile a fine appuntamento':({unpaid:'Non pagato',cash:'Pagato contanti',card:'Pagato carta'})[r.payment]||'Non pagato';
+  left.append(description,badge);if(!(r.end>Date.now())&&r.paidAt&&(r.payment==='cash'||r.payment==='card')){const paidInfo=document.createElement('div');paidInfo.className='meta';paidInfo.textContent='Registrato il '+localDay(r.paidAt)+' alle '+localTime(r.paidAt);left.append(paidInfo)}
   const amount=document.createElement('span');amount.className='amount';amount.textContent=euro(r.amount);head.append(left,amount);wrap.append(head);
   const controls=document.createElement('div');controls.className='pay-options';
   for(const [value,label] of [['cash','💶 Pagato contanti'],['card','💳 Pagato carta'],['unpaid','🕒 Non pagato']]){
    const button=document.createElement('button');button.type='button';button.textContent=label;
    if(r.payment===value){button.classList.add('selected');button.setAttribute('aria-pressed','true')}
    else button.setAttribute('aria-pressed','false');
-   button.disabled=busy;
+   button.dataset.paymentEnd=String(r.end);
+   button.disabled=busy||!(r.end<=Date.now());
    button.onclick=async()=>{
-    if(busy||r.payment===value)return;
+    if(busy||!(r.end<=Date.now())||r.payment===value)return;
     const next=({cash:'Pagato contanti',card:'Pagato carta',unpaid:'Non pagato'})[value];
-    if(!confirm('Impostare «'+next+'» per '+r.name+' ('+euro(r.amount)+')?'))return;
+    if(!confirm('Impostare «'+next+'» ('+euro(r.amount)+')?'))return;
     try{busy=true;status('Salvataggio pagamento in Supabase…');displayRows();await api('set_booking_payment',{booking_id:r.id,payment_status:value});await reload()}
     catch(error){status(error.message,true);alert('Pagamento non aggiornato: '+error.message)}
     finally{busy=false;displayRows()}
@@ -140,7 +140,7 @@ function totals(){
  const now=localDate(),month=el('month').value;
  // Gli incassi seguono la data di registrazione del pagamento, NON la data dell'appuntamento.
  // Le prenotazioni ancora da pagare seguono invece la data dell'appuntamento.
- const paid=rows.filter(r=>(r.payment==='cash'||r.payment==='card')&&r.paidAt&&!Number.isNaN(Date.parse(r.paidAt)));
+ const paid=rows.filter(r=>!(r.end>Date.now())&&(r.payment==='cash'||r.payment==='card')&&r.paidAt&&!Number.isNaN(Date.parse(r.paidAt)));
  const today=paid.filter(r=>localDay(r.paidAt)===now);
  const sum=(items,p)=>items.filter(r=>r.payment===p).reduce((acc,r)=>acc+r.amount,0);
  el('cash').textContent=euro(sum(today,'cash'));
@@ -154,11 +154,24 @@ function totals(){
 }
 async function reload(){
  status('Caricamento prenotazioni da Supabase…');
- const result=await api('list_booking_payments');
+ const [result,data]=await Promise.all([
+  api('list_booking_payments'),
+  api('list',{},FUNCTION_URL.replace(/vertex-cassa\/?$/,'admin-bookings'))
+ ]);
+ const bookings=Array.isArray(data)?data:data.bookings??data.data;
+ if(!Array.isArray(bookings))throw new Error('Elenco orari non valido.');
+ const ends=new Map(bookings.filter(b=>b.status==='confirmed').map(b=>[
+  String(b.id),b.ends_at?Date.parse(b.ends_at):Date.parse(b.starts_at)+900000
+ ]));
  if(!Array.isArray(result.prenotazioni))throw new Error('Elenco prenotazioni non valido.');
- rows=result.prenotazioni.map(normal).filter(r=>r.id&&r.at);
+ rows=result.prenotazioni.map(normal).map(r=>({...r,end:ends.get(r.id)})).filter(r=>r.id&&r.at);
  el('content').classList.remove('hidden');totals();displayRows();status('Prenotazioni e pagamenti sincronizzati con Supabase.');
 }
+setInterval(()=>{
+ document.querySelectorAll('[data-payment-end]').forEach(button=>{
+  button.disabled=busy||!(Number(button.dataset.paymentEnd)<=Date.now());
+ });
+},1000);
 el('month').value=localDate().slice(0,7);
 el('month').onchange=()=>{totals();displayRows()};el('filter').onchange=displayRows;
 // Aggiornamento esplicito con indicazione visibile di caricamento/esito.
@@ -175,7 +188,7 @@ el('reload').addEventListener('click',async()=>{
 el('export').onclick=()=>{
  const month=el('month').value;
  const selected=rows.filter(r=>r.at&&localDay(r.at).startsWith(month));
- const data=[['Data','Ora','Cliente','Servizio','Importo','Pagamento'],...selected.map(r=>[localDay(r.at),localTime(r.at),r.name,r.service,r.amount,({cash:'Pagato contanti',card:'Pagato carta',unpaid:'Non pagato'})[r.payment]||r.payment])];
+ const data=[['Data','Ora','Servizio','Importo','Pagamento'],...selected.map(r=>[localDay(r.at),localTime(r.at),r.service,r.amount,({cash:'Pagato contanti',card:'Pagato carta',unpaid:'Non pagato'})[r.payment]||r.payment])];
  const safe=v=>{let str=String(v??'');if(/^\s*[=+@-]/.test(str))str="'"+str;return '"'+str.replaceAll('"','""')+'"'};
  const csv=data.map(row=>row.map(safe).join(';')).join('\r\n');
  const url=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='vertex-cassa-'+month+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
