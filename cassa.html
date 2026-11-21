@@ -67,7 +67,7 @@ button:disabled{opacity:.45;cursor:wait}
  <div id="entries"></div>
  <button id="export" type="button" class="secondary">Esporta CSV</button>
 </section>
-<p class="note">Gli incassi sono calcolati in base allo stato dei pagamenti delle prenotazioni confermate. Le registrazioni manuali della vecchia Cassa non vengono conteggiate qui, per evitare duplicazioni. Le prenotazioni annullate non vengono incluse.</p>
+<p class="note">Gli incassi giornalieri e mensili seguono la data di registrazione del pagamento; i non pagati seguono la data della prenotazione. Gli incassi visualizzati riflettono lo stato attuale e non costituiscono uno storico contabile immutabile. Le registrazioni manuali della vecchia Cassa non vengono conteggiate qui, per evitare duplicazioni. Le prenotazioni annullate non vengono incluse.</p>
 </div>
 </main>
 <script>
@@ -101,7 +101,7 @@ async function api(action,fields={}){
  return body;
 }
 function normal(row){
- return {id:String(row.booking_id??''),name:String(row.cliente??''),service:String(row.servizio??''),amount:Number(row.importo??0),at:String(row.starts_at??''),payment:String(row.pagamento??'unpaid')};
+ return {id:String(row.booking_id??''),name:String(row.cliente??''),service:String(row.servizio??''),amount:Number(row.importo??0),at:String(row.starts_at??''),payment:String(row.pagamento??'unpaid'),paidAt:row.payment_updated_at?String(row.payment_updated_at):null};
 }
 function displayRows(){
  const month=el('month').value,filter=el('filter').value;
@@ -115,7 +115,7 @@ function displayRows(){
   const name=document.createElement('div');name.className='name';name.textContent=r.name||'Cliente senza nome';
   const description=document.createElement('div');description.className='meta';description.textContent=localDay(r.at)+' · '+localTime(r.at)+' · '+r.service;
   const badge=document.createElement('span');badge.className='pill';badge.textContent=({unpaid:'Non pagato',cash:'Pagato contanti',card:'Pagato carta'})[r.payment]||'Non pagato';
-  left.append(name,description,badge);
+  left.append(name,description,badge);if(r.paidAt&&(r.payment==='cash'||r.payment==='card')){const paidInfo=document.createElement('div');paidInfo.className='meta';paidInfo.textContent='Registrato il '+localDay(r.paidAt)+' alle '+localTime(r.paidAt);left.append(paidInfo)}
   const amount=document.createElement('span');amount.className='amount';amount.textContent=euro(r.amount);head.append(left,amount);wrap.append(head);
   const controls=document.createElement('div');controls.className='pay-options';
   for(const [value,label] of [['cash','💶 Pagato contanti'],['card','💳 Pagato carta'],['unpaid','🕒 Non pagato']]){
@@ -138,15 +138,19 @@ function displayRows(){
 }
 function totals(){
  const now=localDate(),month=el('month').value;
- const today=rows.filter(r=>r.at&&localDay(r.at)===now);
+ // Gli incassi seguono la data di registrazione del pagamento, NON la data dell'appuntamento.
+ // Le prenotazioni ancora da pagare seguono invece la data dell'appuntamento.
+ const paid=rows.filter(r=>(r.payment==='cash'||r.payment==='card')&&r.paidAt&&!Number.isNaN(Date.parse(r.paidAt)));
+ const today=paid.filter(r=>localDay(r.paidAt)===now);
  const sum=(items,p)=>items.filter(r=>r.payment===p).reduce((acc,r)=>acc+r.amount,0);
  el('cash').textContent=euro(sum(today,'cash'));
  el('card').textContent=euro(sum(today,'card'));
  el('today').textContent=euro(sum(today,'cash')+sum(today,'card'));
  el('debt').textContent=euro(sum(rows.filter(r=>r.at&&new Date(r.at).getTime()<=Date.now()),'unpaid'));
- const monthly=rows.filter(r=>r.at&&localDay(r.at).startsWith(month));
- el('monthTotal').textContent=euro(sum(monthly,'cash')+sum(monthly,'card'));
- el('monthUnpaid').textContent=euro(sum(monthly.filter(r=>new Date(r.at).getTime()<=Date.now()),'unpaid'));
+ const monthlyPaid=paid.filter(r=>localDay(r.paidAt).startsWith(month));
+ el('monthTotal').textContent=euro(sum(monthlyPaid,'cash')+sum(monthlyPaid,'card'));
+ const monthlyBookings=rows.filter(r=>r.at&&localDay(r.at).startsWith(month));
+ el('monthUnpaid').textContent=euro(sum(monthlyBookings.filter(r=>new Date(r.at).getTime()<=Date.now()),'unpaid'));
 }
 async function reload(){
  status('Caricamento prenotazioni da Supabase…');
