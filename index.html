@@ -38,22 +38,21 @@ const BOOKING_URL='https://www.vertexhammami.it/#prenota';
 const MAPS_URL='https://www.google.com/maps/search/?api=1&query=VERTEX%20HAMMAMI&query_place_id=ChIJ4606CpIJeUcRbBb5pm9VDqM';
 let lastMessage='';
 let pendingScrollMode=null;
+// Stesso codice pubblico visualizzato in VERTEX_SCHERMO_LIVE.html.
+function vertexBookingCode(id){let h=2166136261;for(const c of String(id)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return 'A'+String((h>>>0)%10000).padStart(4,'0')}
 function messageFor(kind,x,previous){
  const when=`${localDate(x.date)} alle ${x.start}`;
  if(kind==='confirm')return [
-  `Ciao ${x.name},`,
+  `Ciao ${x.name}! ✂️`,
+  'Il tuo appuntamento da VERTEX HAMMAMI è confermato! ✅',
+  `📅 ${when}`,
+  `💈 ${x.service}`,
+  `🎟️ Codice di conferma: ${vertexBookingCode(x.id)}`,
   '',
-  'la tua prenotazione da VERTEX HAMMAMI è confermata.',
-  '',
-  `Data: ${when}`,
-  `Servizio: ${x.service}`,
-  `Barbiere: ${barberName(x.barber)}`,
-  '',
-  'Indirizzo: Via Terraglio 111, Frescada, Preganziol (TV)',
-  'Google Maps:',
+  '📍 Via Terraglio 111, Frescada, Preganziol (TV)',
   MAPS_URL,
   '',
-  'Ti aspettiamo!',
+  'Ti aspettiamo! ⭐⭐⭐⭐⭐',
   'VERTEX HAMMAMI'
  ].join('\n');
  if(kind==='reject')return [
@@ -74,6 +73,7 @@ function messageFor(kind,x,previous){
   `Nuovo appuntamento: ${when}`,
   `Servizio: ${x.service}`,
   `Barbiere: ${barberName(x.barber)}`,
+  `Codice di conferma: ${vertexBookingCode(x.id)}`,
   '',
   'Per nuove richieste o cambi orario:',
   BOOKING_URL,
@@ -213,7 +213,7 @@ if(a==='call-client'){
 if(a==='message-client'){
  const x=fetchId(id);if(!x)return;
  const phone=whatsappPhone(x.phone);if(!phone)return toast('Numero WhatsApp non valido');
- const msg=`Ciao ${x.name}, ti contattiamo da VERTEX HAMMAMI per la tua prenotazione. Grazie!`;
+ const msg=x.status==='confirmed' ? messageFor('confirm',x) : [`Ciao ${x.name}! ✂️`,`Ti contattiamo da VERTEX HAMMAMI per la tua prenotazione.`,`📅 ${localDate(x.date)} alle ${x.start}`,`🎟️ Codice prenotazione: ${vertexBookingCode(x.id)}`,'', '📍 Via Terraglio 111, Frescada, Preganziol (TV)',MAPS_URL,'','VERTEX HAMMAMI ⭐⭐⭐⭐⭐'].join('\n');
  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank','noopener');return;
 }
 if(['pay-cash','pay-card','pay-unpaid'].includes(a)){
