@@ -442,28 +442,26 @@ function minutesUntilAppointment(x){
  return Math.ceil((target.getTime()-Date.now())/60000);
 }
 function reminderMessage(x,remaining){
+ const when=`${localDate(x.date)} · ${x.start}`;
  return [
-  `Ciao ${x.name}!`,
-  remaining===10?'Ti ricordiamo che il tuo appuntamento da VERTEX HAMMAMI è tra 10 minuti.':`Ti ricordiamo che il tuo appuntamento da VERTEX HAMMAMI è tra ${remaining} ${remaining===1?'minuto':'minuti'}.`,
-  `Orario: ${x.start}`,
-  `Codice di conferma: ${vertexBookingCode(x.id)}`,
+  '*VERTEX HAMMAMI* ★★★★★',
+  `Ciao ${x.name}! Promemoria: appuntamento tra ${remaining} ${remaining===1?'minuto':'minuti'}.`,
+  `${when} · ${vertexBookingCode(x.id)}`,
   'Via Terraglio 111, Frescada, Preganziol (TV)',
   MAPS_URL,
-  'Ti aspettiamo! VERTEX HAMMAMI'
+  'Ti aspettiamo!'
  ].join('\n');
 }
 function messageFor(kind,x,previous){
  const when=`${localDate(x.date)} alle ${x.start}`;
  if(kind==='confirm')return [
-  `Ciao ${x.name}!`,
-  'Il tuo appuntamento da VERTEX HAMMAMI è confermato!',
-  `Data e ora: ${when}`,
-  `Servizio: ${x.service}`,
-  `Codice di conferma: ${vertexBookingCode(x.id)}`,
+  '*VERTEX HAMMAMI* ★★★★★',
+  `Ciao ${x.name}! Appuntamento confermato.`,
+  `${when} · ${x.service}`,
+  `Codice: *${vertexBookingCode(x.id)}*`,
   'Via Terraglio 111, Frescada, Preganziol (TV)',
   MAPS_URL,
-  'Ti aspettiamo! ★★★★★',
-  'VERTEX HAMMAMI'
+  'Ti aspettiamo!'
  ].join('\n');
  if(kind==='reject')return [
   `Ciao ${x.name},`,
@@ -522,11 +520,27 @@ try { hiddenCancelled=new Set(JSON.parse(localStorage.getItem(HIDDEN_CANCELLED_K
 function canHideBooking(x){return ['cancelled','rejected'].includes(x.status)||paymentAvailable(x);}
 function isHiddenCancelled(x){return hiddenCancelled.has(String(x.id));}
 function visibleBookings(items,includeHidden=false){return items.filter(x=>includeHidden||!isHiddenCancelled(x));}
+const vertexArrivalState=new Map();
+async function vertexArrivalLoad(){
+ try{
+  if(!session)return;
+  const r=await api('/functions/v1/vertex-arrival',{action:'list'});
+  const fresh=new Map();for(const entry of r.responses||[])fresh.set(String(entry.booking_id),entry);
+  const changed=JSON.stringify([...fresh])!==JSON.stringify([...vertexArrivalState]);
+  vertexArrivalState.clear();for(const [key,value] of fresh)vertexArrivalState.set(key,value);
+  if(changed&&!editing&&(view==='home'||view==='bookings'))render('preserve');
+ }catch(e){console.warn('Stato arrivo non disponibile:',e.message)}
+}
+setInterval(()=>{void vertexArrivalLoad()},20000);
+function vertexArrivalBadge(x){const r=vertexArrivalState.get(String(x.id));if(!r)return '';
+ const labels={on_way:'🟢 Cliente in arrivo',late:'🟡 In ritardo',arrived:'🔵 Cliente arrivato'};
+ return `<div style="display:inline-block;margin-top:5px;border:1px solid #b8a05e;background:#091625;color:#f4d48d;padding:5px 9px;border-radius:8px;font-weight:700;font-size:12px">${labels[r.reply]||''}${r.reply==='late'?' · '+Number(r.delay_minutes||0)+' min':''}</div>`;
+}
 function bookingCard(x){
  const active=!['cancelled','rejected'].includes(x.status);
  const confirmed=x.status==='confirmed';
  const paid=paymentAvailable(x)?paymentState.get(String(x.id))||'unpaid':'';
- return `<article class="booking"><div class="time"><span class="booking-time-value">${escapeHTML(x.start)}</span><small class="booking-short-date">${escapeHTML(shortBookingDate(x.date))}</small><small>${x.duration} min</small></div><div><div class="bname">${escapeHTML(x.name)}</div><div class="bdetails">☎ ${escapeHTML(x.phone)}<br>✂ ${escapeHTML(x.service)}<br><small>${escapeHTML(barberName(x.barber))}</small></div><div class="actions"><button class="secondary" data-act="edit" data-id="${x.id}">Modifica</button>${active?`<button class="danger" data-act="cancel" data-id="${x.id}">Annulla</button>`:''}${canHideBooking(x)?`<button type="button" class="secondary" data-act="hide-cancelled" data-id="${x.id}">${hiddenCancelled.has(String(x.id))?'Mostra':'Nascondi'}</button>`:''}</div>${active?`<div class="booking-quick-actions">${confirmed?`<button type="button" class="secondary ${paid==='cash'?'is-selected':''}" data-act="pay-cash" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💶 Pagato contanti</button><button type="button" class="secondary ${paid==='card'?'is-selected':''}" data-act="pay-card" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💳 Pagato con la carta</button><button type="button" class="secondary ${paid==='unpaid'?'is-selected':''}" data-act="pay-unpaid" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>Non pagato</button>`:''}<button type="button" class="secondary" data-act="call-client" data-id="${x.id}">☎ Chiama cliente</button><button type="button" class="secondary" data-act="message-client" data-id="${x.id}">WhatsApp · Manda messaggio</button>${confirmed?`<button type="button" class="secondary" data-act="remind-client" data-id="${x.id}">Promemoria · 10 min</button>`:''}</div>${confirmed?`<div class="booking-payment-label" data-payment-label="${x.id}"><span>${escapeHTML(paymentLabel(x))}</span> · ${Number(x.price||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</div>`:''}`:''}</div><div class="rightactions"><span class="pill ${escapeHTML(x.status)}">${label(x.status)}</span>${x.status==='pending'?`<button class="goldbtn filled" data-act="confirm" data-id="${x.id}">✓ Conferma</button><button class="danger" data-act="reject" data-id="${x.id}">Rifiuta</button>`:''}</div></article>`;
+ return `<article class="booking"><div class="time"><span class="booking-time-value">${escapeHTML(x.start)}</span><small class="booking-short-date">${escapeHTML(shortBookingDate(x.date))}</small><small>${x.duration} min</small></div><div><div class="bname">${escapeHTML(x.name)}</div>${vertexArrivalBadge(x)}<div class="bdetails">☎ ${escapeHTML(x.phone)}<br>✂ ${escapeHTML(x.service)}<br><small>${escapeHTML(barberName(x.barber))}</small></div><div class="actions"><button class="secondary" data-act="edit" data-id="${x.id}">Modifica</button>${active?`<button class="danger" data-act="cancel" data-id="${x.id}">Annulla</button>`:''}${canHideBooking(x)?`<button type="button" class="secondary" data-act="hide-cancelled" data-id="${x.id}">${hiddenCancelled.has(String(x.id))?'Mostra':'Nascondi'}</button>`:''}</div>${active?`<div class="booking-quick-actions">${confirmed?`<button type="button" class="secondary ${paid==='cash'?'is-selected':''}" data-act="pay-cash" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💶 Pagato contanti</button><button type="button" class="secondary ${paid==='card'?'is-selected':''}" data-act="pay-card" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💳 Pagato con la carta</button><button type="button" class="secondary ${paid==='unpaid'?'is-selected':''}" data-act="pay-unpaid" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>Non pagato</button>`:''}<button type="button" class="secondary" data-act="call-client" data-id="${x.id}">☎ Chiama cliente</button><button type="button" class="secondary" data-act="message-client" data-id="${x.id}">WhatsApp · Manda messaggio</button>${confirmed?`<button type="button" class="secondary" data-act="remind-client" data-id="${x.id}">Promemoria · 10 min</button>`:''}</div>${confirmed?`<div class="booking-payment-label" data-payment-label="${x.id}"><span>${escapeHTML(paymentLabel(x))}</span> · ${Number(x.price||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</div>`:''}`:''}</div><div class="rightactions"><span class="pill ${escapeHTML(x.status)}">${label(x.status)}</span>${x.status==='pending'?`<button class="goldbtn filled" data-act="confirm" data-id="${x.id}">✓ Conferma</button><button class="danger" data-act="reject" data-id="${x.id}">Rifiuta</button>`:''}</div></article>`;
 }
 function listBookings(dateOnly=false){let items=state.bookings.filter(x=>!dateOnly||x.date===currentDate);const st=bookingStatusFilter;if(st==='today')items=items.filter(x=>x.date===currentDate&&!['cancelled','rejected'].includes(x.status));else if(st==='hidden')items=items.filter(x=>hiddenCancelled.has(String(x.id)));else if(st!=='all')items=items.filter(x=>x.status===st);items=visibleBookings(items,st==='hidden');items.sort((a,b)=>a.date.localeCompare(b.date)||a.start.localeCompare(b.start));return items.map(x=>bookingCard(x)).join('')||'<div class="empty">Nessuna prenotazione da visualizzare.</div>'}
 function home(){const items=visibleBookings(state.bookings.filter(x=>x.date===currentDate)).sort((a,b)=>a.start.localeCompare(b.start));return `<div class="section-heading"><h2>▦ Appuntamenti di oggi</h2><button class="goldbtn" data-act="new">＋ Nuova prenotazione</button></div>${items.map(bookingCard).join('')||'<div class="empty">Nessun appuntamento per oggi.</div>'}<p class="notice">Dati sincronizzati con VERTEX HAMMAMI.</p>`}
@@ -593,7 +607,7 @@ async function loadBookingPayments(){
   if(!editing&&(view==='home'||view==='bookings'))render('preserve');
  }catch(err){paymentsReady=false;console.warn('Impossibile aggiornare la Cassa:',err);toast('Pagamenti non aggiornati: '+err.message);}
 }
-async function loadReal(){if(locked)return;locked=true;try{const [data,barberData]=await Promise.all([api('/functions/v1/admin-bookings',{action:'list'}),api('/functions/v1/admin-bookings',{action:'barbers_list'})]);const list=Array.isArray(data)?data:Array.isArray(data.bookings)?data.bookings:Array.isArray(data.data)?data.data:null;if(!list)throw Error('Risposta prenotazioni non valida');refreshUi(list,barberData.barbers||[]);void loadBookingPayments();toast(`Aggiornato · ${list.length} prenotazioni`);}catch(e){toast('Aggiornamento non riuscito: '+e.message);}finally{locked=false;}}
+async function loadReal(){if(locked)return;locked=true;try{const [data,barberData]=await Promise.all([api('/functions/v1/admin-bookings',{action:'list'}),api('/functions/v1/admin-bookings',{action:'barbers_list'})]);const list=Array.isArray(data)?data:Array.isArray(data.bookings)?data.bookings:Array.isArray(data.data)?data.data:null;if(!list)throw Error('Risposta prenotazioni non valida');refreshUi(list,barberData.barbers||[]);void loadBookingPayments();void vertexArrivalLoad();toast(`Aggiornato · ${list.length} prenotazioni`);}catch(e){toast('Aggiornamento non riuscito: '+e.message);}finally{locked=false;}}
 function whatsappPhone(raw){let v=String(raw||'').replace(/[^\d+]/g,'');if(v.startsWith('+'))v=v.slice(1);if(v.startsWith('00'))v=v.slice(2);if(/^3\d{9}$/.test(v))v='39'+v;return /^\d{8,15}$/.test(v)?v:'';}
 function openWhatsapp(kind,x,previous){const number=whatsappPhone(x.phone),msg=messageFor(kind,x,previous);if(!number||!msg)return toast('Messaggio WhatsApp non disponibile: controlla il numero');window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`,'_blank','noopener');}
 function updateDate(date){currentDate=date;$('#globalDate').value=date;calendarMonth=date.slice(0,7);editing=null;view='calendar';render('calendar-day');}
@@ -630,7 +644,15 @@ if(a==='remind-client'){
  const phone=whatsappPhone(x.phone);
  if(!phone)return toast('Numero WhatsApp non valido');
  // Solo apertura della bozza: l'invio resta manuale.
- window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(reminderMessage(x,remaining)),'_blank','noopener');
+ try {
+   const whatsappTab=window.open('about:blank','_blank');
+   const result=await api('/functions/v1/vertex-arrival',{action:'create_link',booking_id:String(x.id)});
+   if(!result.url||!result.url.startsWith('https://admin.vertexhammami.it/'))throw Error('Link promemoria non valido');
+   const msg=reminderMessage(x,remaining)+'\n\nConferma il tuo arrivo qui: '+result.url;
+   const whatsappUrl='https://wa.me/'+phone+'?text='+encodeURIComponent(msg);
+   if(whatsappTab){whatsappTab.opener=null;whatsappTab.location.href=whatsappUrl;}else{window.location.href=whatsappUrl;}
+ }catch(err){toast('Impossibile creare il link: '+err.message);}
+
  return;
 }
 if(a==='message-client'){
