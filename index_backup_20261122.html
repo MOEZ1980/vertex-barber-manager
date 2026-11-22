@@ -519,16 +519,6 @@ try { hiddenCancelled=new Set(JSON.parse(localStorage.getItem(HIDDEN_CANCELLED_K
 function canHideBooking(x){return ['cancelled','rejected'].includes(x.status)||paymentAvailable(x);}
 function isHiddenCancelled(x){return hiddenCancelled.has(String(x.id));}
 function visibleBookings(items,includeHidden=false){return items.filter(x=>includeHidden||!isHiddenCancelled(x));}
-// Gestione presenza locale: non altera il sistema prenotazioni esistente.
-const VERTEX_ATTENDANCE_KEY='vertex_attendance_v1';
-let vertexAttendance={};
-try{vertexAttendance=JSON.parse(localStorage.getItem(VERTEX_ATTENDANCE_KEY)||'{}')||{}}catch(_){vertexAttendance={}}
-function vertexAttendanceSave(){try{localStorage.setItem(VERTEX_ATTENDANCE_KEY,JSON.stringify(vertexAttendance))}catch(_){}}
-function vertexAttendanceBadge(x){
- const entry=vertexAttendance[String(x.id)];if(!entry)return '';
- const label=entry.kind==='absent'?'🔴 Assente — fascia liberata':'🟢 Cliente arrivato';
- return `<div style="display:inline-block;margin-top:5px;padding:5px 9px;border-radius:8px;background:#111d2c;border:1px solid #b89a52;color:#f6d48b;font-size:12px">${label}</div>`;
-}
 const vertexArrivalState=new Map();
 async function vertexArrivalLoad(){
  try{
@@ -549,7 +539,7 @@ function bookingCard(x){
  const active=!['cancelled','rejected'].includes(x.status);
  const confirmed=x.status==='confirmed';
  const paid=paymentAvailable(x)?paymentState.get(String(x.id))||'unpaid':'';
- return `<article class="booking"><div class="time"><span class="booking-time-value">${escapeHTML(x.start)}</span><small class="booking-short-date">${escapeHTML(shortBookingDate(x.date))}</small><small>${x.duration} min</small></div><div><div class="bname">${escapeHTML(x.name)}</div>${vertexArrivalBadge(x)}${vertexAttendanceBadge(x)}<div class="bdetails">☎ ${escapeHTML(x.phone)}<br>✂ ${escapeHTML(x.service)}<br><small>${escapeHTML(barberName(x.barber))}</small></div><div class="actions"><button class="secondary" data-act="edit" data-id="${x.id}">Modifica</button>${active?`<button class="danger" data-act="cancel" data-id="${x.id}">Annulla</button>`:''}${canHideBooking(x)?`<button type="button" class="secondary" data-act="hide-cancelled" data-id="${x.id}">${hiddenCancelled.has(String(x.id))?'Mostra':'Nascondi'}</button>`:''}</div>${active?`<div class="booking-quick-actions">${confirmed?`<button type="button" class="secondary ${paid==='cash'?'is-selected':''}" data-act="pay-cash" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💶 Pagato contanti</button><button type="button" class="secondary ${paid==='card'?'is-selected':''}" data-act="pay-card" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💳 Pagato con la carta</button><button type="button" class="secondary ${paid==='unpaid'?'is-selected':''}" data-act="pay-unpaid" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>Non pagato</button>`:''}<button type="button" class="secondary" data-act="call-client" data-id="${x.id}">☎ Chiama cliente</button><button type="button" class="secondary" data-act="message-client" data-id="${x.id}">WhatsApp · Manda messaggio</button>${confirmed?`<button type="button" class="secondary" data-act="remind-client" data-id="${x.id}">Promemoria · 10 min</button><button type="button" class="secondary" data-act="vertex-arrived" data-id="${x.id}">🟢 Arrivato</button><button type="button" class="danger" data-act="vertex-absent" data-id="${x.id}">🔴 Non arrivato</button>`:''}</div>${confirmed?`<div class="booking-payment-label" data-payment-label="${x.id}"><span>${escapeHTML(paymentLabel(x))}</span> · ${Number(x.price||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</div>`:''}`:''}</div><div class="rightactions"><span class="pill ${escapeHTML(x.status)}">${label(x.status)}</span>${x.status==='pending'?`<button class="goldbtn filled" data-act="confirm" data-id="${x.id}">✓ Conferma</button><button class="danger" data-act="reject" data-id="${x.id}">Rifiuta</button>`:''}</div></article>`;
+ return `<article class="booking"><div class="time"><span class="booking-time-value">${escapeHTML(x.start)}</span><small class="booking-short-date">${escapeHTML(shortBookingDate(x.date))}</small><small>${x.duration} min</small></div><div><div class="bname">${escapeHTML(x.name)}</div>${vertexArrivalBadge(x)}<div class="bdetails">☎ ${escapeHTML(x.phone)}<br>✂ ${escapeHTML(x.service)}<br><small>${escapeHTML(barberName(x.barber))}</small></div><div class="actions"><button class="secondary" data-act="edit" data-id="${x.id}">Modifica</button>${active?`<button class="danger" data-act="cancel" data-id="${x.id}">Annulla</button>`:''}${canHideBooking(x)?`<button type="button" class="secondary" data-act="hide-cancelled" data-id="${x.id}">${hiddenCancelled.has(String(x.id))?'Mostra':'Nascondi'}</button>`:''}</div>${active?`<div class="booking-quick-actions">${confirmed?`<button type="button" class="secondary ${paid==='cash'?'is-selected':''}" data-act="pay-cash" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💶 Pagato contanti</button><button type="button" class="secondary ${paid==='card'?'is-selected':''}" data-act="pay-card" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>💳 Pagato con la carta</button><button type="button" class="secondary ${paid==='unpaid'?'is-selected':''}" data-act="pay-unpaid" data-id="${x.id}" ${paymentsReady&&paymentAvailable(x)?'':'disabled'}>Non pagato</button>`:''}<button type="button" class="secondary" data-act="call-client" data-id="${x.id}">☎ Chiama cliente</button><button type="button" class="secondary" data-act="message-client" data-id="${x.id}">WhatsApp · Manda messaggio</button>${confirmed?`<button type="button" class="secondary" data-act="remind-client" data-id="${x.id}">Promemoria · 10 min</button>`:''}</div>${confirmed?`<div class="booking-payment-label" data-payment-label="${x.id}"><span>${escapeHTML(paymentLabel(x))}</span> · ${Number(x.price||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'})}</div>`:''}`:''}</div><div class="rightactions"><span class="pill ${escapeHTML(x.status)}">${label(x.status)}</span>${x.status==='pending'?`<button class="goldbtn filled" data-act="confirm" data-id="${x.id}">✓ Conferma</button><button class="danger" data-act="reject" data-id="${x.id}">Rifiuta</button>`:''}</div></article>`;
 }
 function listBookings(dateOnly=false){let items=state.bookings.filter(x=>!dateOnly||x.date===currentDate);const st=bookingStatusFilter;if(st==='today')items=items.filter(x=>x.date===currentDate&&!['cancelled','rejected'].includes(x.status));else if(st==='hidden')items=items.filter(x=>hiddenCancelled.has(String(x.id)));else if(st!=='all')items=items.filter(x=>x.status===st);items=visibleBookings(items,st==='hidden');items.sort((a,b)=>a.date.localeCompare(b.date)||a.start.localeCompare(b.start));return items.map(x=>bookingCard(x)).join('')||'<div class="empty">Nessuna prenotazione da visualizzare.</div>'}
 function home(){const items=visibleBookings(state.bookings.filter(x=>x.date===currentDate)).sort((a,b)=>a.start.localeCompare(b.start));return `<div class="section-heading"><h2>▦ Appuntamenti di oggi</h2><button class="goldbtn" data-act="new">＋ Nuova prenotazione</button></div>${items.map(bookingCard).join('')||'<div class="empty">Nessun appuntamento per oggi.</div>'}<p class="notice">Dati sincronizzati con VERTEX HAMMAMI.</p>`}
@@ -628,26 +618,6 @@ function bindApp(){document.querySelectorAll('.nav button').forEach(x=>x.addEven
 document.querySelectorAll('[data-stat-filter]').forEach(b=>b.addEventListener('click',()=>{if(!session)return;bookingStatusFilter=b.dataset.statFilter;view='bookings';editing=null;render('content');}));
 document.addEventListener('change',e=>{if(e.target.id==='statusFilter'){bookingStatusFilter=e.target.value;$('#bookingList').innerHTML=listBookings();stats();moveToContent('content');}if(e.target.id==='serviceSelect'){const m=services.find(s=>s[0]===e.target.value);if(m)$('[name="duration"]').value=m[2];}if(e.target.id==='language'){e.target.value='it';toast('Lingua italiana');}});
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');if(!b||!session)return;const a=b.dataset.act,id=b.dataset.id;
-if(a==='vertex-arrived'){
- const x=fetchId(id);if(!x||x.status!=='confirmed')return toast('Disponibile solo per prenotazioni confermate');
- if(!confirm(`Confermi l'arrivo di ${x.name}?`))return;
- vertexAttendance[String(x.id)]={kind:'arrived',at:new Date().toISOString()};vertexAttendanceSave();
- render('preserve');toast('Cliente arrivato registrato su questo dispositivo');return;
-}
-if(a==='vertex-absent'){
- const x=fetchId(id);if(!x||x.status!=='confirmed')return toast('Disponibile solo per prenotazioni confermate');
- if(paymentState.get(String(x.id))==='cash'||paymentState.get(String(x.id))==='card')return toast('Prenotazione già pagata: verificare prima di liberare la fascia');
- if(!confirm(`Confermi che ${x.name} non si è presentato? La prenotazione sarà annullata e l'orario tornerà disponibile.`))return;
- // Usa la stessa azione amministrativa di annullamento, senza introdurre nuovi status incompatibili.
- await withAction(()=>api('/functions/v1/admin-bookings',{action:'update',id:x.id,status:'cancelled'}));
- // Verifica il risultato sul server prima di registrare l'assenza.
- const refreshed=fetchId(id);
- if(refreshed&&refreshed.status==='cancelled'){
-   vertexAttendance[String(id)]={kind:'absent',at:new Date().toISOString()};vertexAttendanceSave();
-   render('preserve');toast('Assente: fascia liberata, storico mantenuto');
- }
- return;
-}
 if(a==='hide-cancelled'){
  const x=fetchId(id);
  if(!x||!canHideBooking(x))return toast('Puoi nascondere solo appuntamenti terminati, annullati o rifiutati');
