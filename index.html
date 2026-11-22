@@ -457,11 +457,10 @@ function messageFor(kind,x,previous){
  if(kind==='confirm')return [
   '*VERTEX HAMMAMI* ★★★★★',
   `Ciao ${x.name}! Appuntamento confermato.`,
-  `${when} · ${x.service}`,
-  `Codice: *${vertexBookingCode(x.id)}*`,
-  'Via Terraglio 111, Frescada, Preganziol (TV)',
-  MAPS_URL,
-  'Ti aspettiamo!'
+  `📅 ${when} · ${x.service}`,
+  `✂️ ${vertexBookingCode(x.id)}`,
+  '📍 Via Terraglio 111, Frescada, Preganziol (TV)',
+  MAPS_URL
  ].join('\n');
  if(kind==='reject')return [
   `Ciao ${x.name},`,
