@@ -101,7 +101,78 @@ body{background:#090a0c;color:#f7f7f8;font-family:Arial,'Segoe UI',sans-serif}
  .fullscreen-btn{bottom:calc(16px + env(safe-area-inset-bottom,0px));opacity:.5}
 }
 @media(prefers-reduced-motion:reduce){.offer{animation:none}}
-</style></head>
+</style>
+<style id="vertex-live-black-luxury">
+:root{--gold:#eac16c!important;--line:#315778!important;--bg:#030508!important;--panel:#080d14!important}
+html,body{background:#030508!important;color:#f6f8ff!important}
+.screen{background:radial-gradient(circle at top right,#0c2237 0%,#040811 34%,#020408 85%)!important}
+.head{border-color:#315778!important}
+.brand{color:#eac16c!important;text-shadow:0 0 13px #c59d4a33,0 2px 3px #000!important}
+.brand small{color:#ecf1fa!important}
+.clock{color:#eac16c!important;text-shadow:0 0 13px #284c7044!important}
+.date{color:#d7e2f1!important}
+.body{grid-template-columns:minmax(215px,26%) minmax(0,74%)!important}
+.panel{background:linear-gradient(145deg,#0d1420,#05080d 75%)!important;border:1.5px solid #315778!important;box-shadow:0 8px 25px #000a,inset 0 1px 0 #ffffff0b!important}
+.panel:first-child{background:linear-gradient(160deg,#0b1018,#05080c)!important}
+.panel:last-child{background:radial-gradient(circle at 78% 45%,#0d284555,transparent 60%),#06090f!important}
+.panel:last-child:before{opacity:.82!important}
+.panel:last-child:after{background:linear-gradient(133deg,transparent 64%,#2477bb66 64.2%,transparent 64.6%)!important}
+.heading{color:#eac16c!important;text-shadow:0 1px 4px #000!important}
+.appointment{background:linear-gradient(125deg,#0e2136,#070d17 85%)!important;border:1px solid #35648b!important;box-shadow:0 4px 15px #0009!important}
+.appointment .at{background:linear-gradient(135deg,#eac16c,#c99c46)!important;color:#060c15!important;box-shadow:0 2px 10px #0008!important}
+.appointment .code{color:#f2f6ff!important}
+.appointment small{color:#bdcde0!important}
+.offer-kicker{background:linear-gradient(115deg,#f3d28c,#c59b46)!important;color:#06111e!important}
+.offer-title{color:#f6f8ff!important;text-shadow:0 2px 8px #02050a!important}
+.offer-detail{color:#d7e1ee!important}
+.footer{border-color:#315778!important;color:#eac16c!important}
+.demo{background:#081827!important;color:#b5c9df!important;border-color:#315778!important}
+.fullscreen-btn{background:#081b2c!important;color:#eac16c!important;border-color:#c49d53!important}
+.vertex-back{background:#0c2d4d!important;border:2px solid #eac16c!important;color:#f7d889!important}
+@media(max-aspect-ratio:1){.body{grid-template-columns:1fr!important;grid-template-rows:minmax(0,23%) minmax(0,77%)!important}}
+</style>
+<style id="vertex-live-final-midnight-25-75">
+:root{--gold:#eac16c!important;--line:#145488!important;--bg:#010306!important;--panel:#030912!important}
+html,body{background:#010306!important;color:#f7f9ff!important}
+.screen{background:linear-gradient(155deg,#010307 0%,#030914 63%,#010305 100%)!important;padding:2vh 2vw!important;gap:1.4vh!important}
+.head{border-bottom:2px solid #15578d!important;align-items:center!important;gap:1.2vw!important}
+.brand{color:#eac16c!important}.brand small{color:#e9f1fb!important}
+.time{display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:.4vh!important;min-width:215px!important}
+.time .clock{font-size:clamp(41px,5.2vw,99px)!important;line-height:1!important;min-width:clamp(165px,15vw,305px)!important;text-align:center!important;padding:.5vh 1vw!important;background:linear-gradient(125deg,#f8db91,#c79d43)!important;color:#040913!important;border:1px solid #ffe6a2!important;border-radius:16px!important;text-shadow:none!important}
+.time .date{color:#e5effa!important;font-size:clamp(13px,1.2vw,25px)!important;text-align:right!important}
+.body{display:grid!important;grid-template-columns:minmax(0,25%) minmax(0,75%)!important;gap:1vw!important;min-height:0!important}
+.panel,.panel:first-child,.panel:last-child{min-width:0!important;padding:1.15vw!important;background:linear-gradient(145deg,#06101e,#02050b 85%)!important;border:1.5px solid #155a92!important;border-radius:21px!important;box-shadow:inset 0 1px #ffffff0b,0 0 13px #07579e30!important}
+.panel:last-child:before{opacity:.28!important;width:35%!important}
+.panel:last-child:after{opacity:.2!important}
+.panel:first-child .heading{font-size:clamp(18px,1.6vw,29px)!important;line-height:1.12!important;margin:0 0 1.3vh!important;color:#eac16c!important;white-space:normal!important}
+.panel:last-child .heading{font-size:clamp(29px,3vw,59px)!important;color:#eac16c!important;margin:0 0 1.1vh!important}
+.rows{display:flex!important;flex-direction:column!important;gap:1vh!important;overflow-y:auto!important;margin-top:.6vh!important}
+.appointment{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:'code time' 'date time'!important;column-gap:.6vw!important;row-gap:.1vh!important;align-items:center!important;padding:1.1vh .65vw!important;background:#071427!important;border:1px solid #1565a7!important;border-radius:13px!important}
+.appointment .code{grid-area:code!important;color:#f8d78b!important;font-size:clamp(15px,1.55vw,31px)!important;font-weight:800!important;white-space:nowrap!important;overflow-wrap:normal!important}
+.appointment .booking-date{grid-area:date!important;color:#e9f2ff!important;font-size:clamp(10px,.9vw,18px)!important;white-space:nowrap!important}
+.appointment .at{grid-area:time!important;justify-self:end!important;min-width:clamp(78px,6.7vw,135px)!important;padding:.9vh .4vw!important;border-radius:11px!important;background:linear-gradient(140deg,#f8dc92,#d1a13f)!important;color:#030609!important;font-size:clamp(17px,1.6vw,35px)!important;text-align:center!important;white-space:nowrap!important}
+.offer{padding:2vw 12% 2vw 2vw!important;align-items:flex-start!important;text-align:left!important;gap:2.3vh!important}
+.offer-kicker{color:#070d16!important;background:linear-gradient(115deg,#f6d889,#d2a54f)!important;font-size:clamp(22px,2.3vw,48px)!important}
+.offer-title{color:#f3d17b!important;font-size:clamp(42px,5.2vw,104px)!important;text-shadow:0 2px 10px #000a!important}
+.offer-detail{color:#ecf3ff!important;font-size:clamp(22px,2.3vw,49px)!important}
+.footer{color:#eac16c!important;border-color:#15578d!important}
+@media(max-aspect-ratio:1){
+ .body{grid-template-columns:1fr!important;grid-template-rows:minmax(0,23%) minmax(0,77%)!important;gap:1vh!important}
+ .panel:first-child{padding:1vh 2vw!important}
+ .rows{flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;gap:1vw!important}
+ .appointment{flex:0 0 auto!important;min-width:155px!important;padding:.6vh 1.2vw!important;column-gap:1vw!important}
+ .appointment .code{font-size:clamp(12px,2vw,23px)!important}
+ .appointment .booking-date{font-size:clamp(10px,1.5vw,16px)!important}
+ .appointment .at{min-width:auto!important;font-size:clamp(13px,2vw,25px)!important;padding:.5vh 1vw!important}
+ .panel:last-child .heading{font-size:clamp(18px,3vw,36px)!important}
+ .offer{padding:1.5vw 24% 1.5vw 1.5vw!important}
+ .offer-title{font-size:clamp(30px,5vw,70px)!important}
+ .time{min-width:110px!important}
+ .time .clock{min-width:110px!important;font-size:clamp(24px,5vw,50px)!important}
+ .time .date{font-size:clamp(10px,2vw,18px)!important}
+}
+</style>
+</head>
 <body><button type="button" id="fullscreenBtn" class="fullscreen-btn" aria-label="Attiva schermo intero">⛶ Schermo intero</button><a class="vertex-back" href="/index.html?view=settings" aria-label="Torna all’Admin">← Torna all’Admin</a><div class="screen"><header class="head"><div class="brand">✂ VERTEX HAMMAMI <small>BENVENUTI NEL NOSTRO BARBER SHOP</small></div><div class="time"><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div></header><main class="body"><section class="panel"><h2 class="heading">APPUNTAMENTI DI OGGI</h2><div class="rows" id="appointments"></div></section><section class="panel"><h2 class="heading">NOVITÀ &amp; OFFERTE</h2><div id="offer" class="offer" aria-live="polite"></div></section></main><footer class="footer"><span>Via Terraglio 111 · Frescada, Preganziol</span><span>PRENOTA SU www.vertexhammami.it</span></footer></div>
 <script>
 'use strict';
@@ -131,7 +202,7 @@ async function token(){let s=session();if(!s)throw Error('Accedi prima all’Adm
 async function fetchBookings(){const access=await token();const res=await fetch(SB_URL+'/functions/v1/admin-bookings',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+access},body:JSON.stringify({action:'list'}),cache:'no-store'});const body=await res.json().catch(()=>({}));if(!res.ok||body?.error)throw Error('Accesso ai dati non disponibile. Riapri l’Admin.');const rows=Array.isArray(body)?body:Array.isArray(body.bookings)?body.bookings:body.data;if(!Array.isArray(rows))throw Error('Risposta prenotazioni non valida');return rows}
 let bookings=[],slide=0,busy=false;
 function draw(){const opt=settings();const d=today();let current=bookings.filter(x=>x.status==='confirmed'&&!isBlock(x)&&x.starts_at&&romeParts(x.starts_at).date===d).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at)).slice(0,5);
- const root=$('appointments');root.replaceChildren();for(const b of current){const row=document.createElement('div');row.className='appointment';const when=romeParts(b.starts_at);const at=document.createElement('div');at.className='at';at.textContent=when.hour;const info=document.createElement('div');const code=document.createElement('div');code.className='code';const name=opt.consents?.[String(b.id)]===true?bookingName(b.customer_name):'';code.textContent=(name?name+' · ':'')+bookingCode(b.id);info.append(code);row.append(at,info);root.append(row)}
+ const root=$('appointments');root.replaceChildren();for(const b of current){const row=document.createElement('div');row.className='appointment';const when=romeParts(b.starts_at);const at=document.createElement('div');at.className='at';at.textContent=when.hour;const code=document.createElement('div');code.className='code';code.textContent=bookingCode(b.id);const date=document.createElement('div');date.className='booking-date';date.textContent=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(b.starts_at));row.append(code,date,at);root.append(row)}
  if(!current.length){const empty=document.createElement('p');empty.className='hint';empty.textContent='Nessun appuntamento oggi';root.append(empty)}showOffer()}
 function fitWebsiteTitle(){
  const title=document.querySelector('#offer .offer-title.is-website');
