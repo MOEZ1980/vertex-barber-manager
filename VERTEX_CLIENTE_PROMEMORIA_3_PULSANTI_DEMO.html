@@ -32,4 +32,38 @@ $('go').addEventListener('click',()=>{$('lateBox').style.display='none';$('feedb
 $('late').addEventListener('click',()=>{$('lateBox').style.display='grid';$('feedback').textContent='Scegli di quanti minuti sei in ritardo.'});
 $('arrived').addEventListener('click',()=>{$('lateBox').style.display='none';$('feedback').textContent=''});
 document.querySelectorAll('[data-delay]').forEach(b=>b.addEventListener('click',()=>{$('feedback').textContent=''}));
+</script></body></html><!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#05090f"><title>VERTEX HAMMAMI | Promemoria</title>
+<style>
+:root{color-scheme:dark;--gold:#eac16c;--blue:#163b62;--green:#20c679}*{box-sizing:border-box}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;background:radial-gradient(circle at 50% 0%,#132945,#040810 60%,#020305);color:#f4f7fd;font:15px -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;padding:17px}
+main{width:min(430px,100%);background:linear-gradient(160deg,#0a1423,#04070d);border:1px solid #b9914c;border-radius:25px;padding:20px;box-shadow:0 25px 65px #000b,0 0 28px #0b54a21c}
+header{display:flex;gap:12px;align-items:center;border-bottom:1px solid #1f3e5f;padding-bottom:13px;margin-bottom:13px}
+.logo{width:50px;height:50px;border:1px solid #c6a45d;background:#0b2039;border-radius:14px;display:grid;place-items:center;color:var(--gold);font-size:26px}
+h1{font:700 19px Georgia,serif;letter-spacing:1.5px;color:var(--gold);margin:0}header p{margin:5px 0 0;font-size:12px;letter-spacing:1px;color:#d9e4f5}
+.greeting{margin:0 0 13px;line-height:1.5}.info{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#081b2e;border:1px solid #274a70;border-radius:14px;padding:12px;margin-bottom:14px}
+.info span{color:#b7c8db;display:block;font-size:12px}.info strong{color:#f6d285;font-size:17px}nav{display:grid;gap:9px}
+button{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid;border-radius:13px;padding:13px 10px;font-size:15px;font-weight:750;cursor:pointer;min-height:48px}
+.go{background:#0d3d2b;color:#affcd4;border-color:#2bc57c}.late{background:#49390e;color:#ffe5a0;border-color:#dbb657}.arrived{background:#10365d;color:#b7dcff;border-color:#4095e4}
+button:focus-visible{outline:2px solid #fff;outline-offset:2px}button:hover{filter:brightness(1.13)}
+#lateBox{display:none;gap:7px;grid-template-columns:repeat(3,1fr);margin-top:8px}#lateBox button{font-size:13px;padding:9px 6px;background:#0e2336;color:#f9d692;border-color:#876f3e}
+#feedback{min-height:0;color:#f3d58f;margin-top:11px;font-size:13px;text-align:center;line-height:1.5}
+footer{margin-top:12px;border-top:1px solid #234260;padding-top:12px;text-align:center;color:#aebcd0;font-size:12px}
+a{color:#f2d08d;text-decoration:underline;text-underline-offset:3px}
+small{font-size:11px}
+</style></head><body><main>
+<header><div class="logo" aria-hidden="true">✂</div><div><h1>VERTEX HAMMAMI</h1><p>BARBER SHOP · ★★★★★</p></div></header>
+<p class="greeting"><b>Ciao!</b> Il tuo appuntamento è tra 10 minuti. Conferma il tuo arrivo:</p>
+<div class="info"><div><span>Orario</span><strong>15:30</strong></div><div><span>Codice prenotazione</span><strong>A8613</strong></div></div>
+<nav aria-label="Risposta al promemoria"><button type="button" class="go" id="go">✓ Confermo, sto arrivando</button><button type="button" class="late" id="late">◷ Sono in ritardo</button><div id="lateBox" aria-label="Minuti di ritardo"><button type="button" data-delay="5">5 minuti</button><button type="button" data-delay="10">10 minuti</button><button type="button" data-delay="15">15 minuti</button></div><button type="button" class="arrived" id="arrived">⌖ Sono arrivato</button></nav>
+<div id="feedback" role="status" aria-live="polite"></div>
+<footer><div>Via Terraglio 111, Frescada, Preganziol (TV)</div><div><a href="https://www.google.com/maps/search/?api=1&amp;query=VERTEX%20HAMMAMI&amp;query_place_id=ChIJ4606CpIJeUcRbBb5pm9VDqM" target="_blank" rel="noopener">Apri Google Maps</a></div></footer>
+
+</main>
+<script>
+'use strict';const $=id=>document.getElementById(id);
+$('go').addEventListener('click',()=>{$('lateBox').style.display='none';$('feedback').textContent=''});
+$('late').addEventListener('click',()=>{$('lateBox').style.display='grid';$('feedback').textContent='Scegli di quanti minuti sei in ritardo.'});
+$('arrived').addEventListener('click',()=>{$('lateBox').style.display='none';$('feedback').textContent=''});
+document.querySelectorAll('[data-delay]').forEach(b=>b.addEventListener('click',()=>{$('feedback').textContent=''}));
 </script></body></html>
