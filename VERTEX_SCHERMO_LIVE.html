@@ -219,6 +219,76 @@ function clock(){const now=new Date();$('clock').textContent=new Intl.DateTimeFo
 async function refresh(){if(busy)return;busy=true;try{bookings=await fetchBookings();draw()}catch(e){bookings=[];draw();console.warn('Schermo clienti:',e.message)}finally{busy=false}}
 window.addEventListener('resize',fitWebsiteTitle);window.addEventListener('storage',e=>{if(e.key===DISPLAY_KEY)draw();if(e.key===SESSION_KEY)refresh()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});clock();draw();refresh();setInterval(clock,1000);setInterval(()=>{slide++;showOffer()},9000);setInterval(refresh,30000);
 
+let lastWelcomeEvent = 0;
+let welcomeTimer = null;
+
+async function checkWelcome() {
+  try {
+    const access = await token();
+    const response = await fetch(
+      SB_URL + '/functions/v1/vertex-screen-welcome',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SB_KEY,
+          'Authorization': 'Bearer ' + access
+        },
+        body: JSON.stringify({ action: 'latest' }),
+        cache: 'no-store'
+      }
+    );
+
+    if (!response.ok) return;
+    const data = await response.json();
+    const event = data.event;
+    if (!event || Number(event.id) <= lastWelcomeEvent) return;
+
+    lastWelcomeEvent = Number(event.id);
+    if (Date.now() - new Date(event.created_at).getTime() > 15000) return;
+
+    const code = String(event.booking_code || '');
+    if (!/^A[0-9]{4}$/.test(code)) return;
+
+    let screen = document.getElementById('vertex-welcome');
+    if (!screen) {
+      screen = document.createElement('div');
+      screen.id = 'vertex-welcome';
+      screen.style.cssText =
+        'position:fixed;inset:0;z-index:99999;background:#07172b;' +
+        'color:white;display:flex;flex-direction:column;' +
+        'align-items:center;justify-content:center;text-align:center;' +
+        'gap:24px;font-family:Arial,sans-serif;padding:20px;';
+      document.body.appendChild(screen);
+    }
+
+    screen.replaceChildren();
+
+    for (const [value, size, color] of [
+      ['✂ VERTEX HAMMAMI', 'clamp(22px,3vw,48px)', '#e6bb6a'],
+      ['BENVENUTO!', 'clamp(44px,8vw,120px)', '#ffffff'],
+      ['Siamo felici di averti qui.', 'clamp(20px,3vw,42px)', '#ffffff'],
+      [code, 'clamp(60px,10vw,150px)', '#e6bb6a'],
+      ['Accomodati, saremo subito da te.', 'clamp(18px,3vw,40px)', '#ffffff']
+    ]) {
+      const line = document.createElement('div');
+      line.textContent = value;
+      line.style.fontSize = size;
+      line.style.color = color;
+      line.style.fontWeight = 'bold';
+      screen.appendChild(line);
+    }
+
+    clearTimeout(welcomeTimer);
+    welcomeTimer = setTimeout(() => screen.remove(), 10000);
+  } catch (e) {
+    console.warn('Welcome TV:', e);
+  }
+}
+
+checkWelcome();
+setInterval(checkWelcome, 3000);
+
 // La modalità a schermo intero richiede sempre un clic dell'operatore.
 // Wake Lock è un supporto opzionale: le impostazioni di Windows restano necessarie.
 let vertexWakeLock=null;
