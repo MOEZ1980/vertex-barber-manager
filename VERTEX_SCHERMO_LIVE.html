@@ -228,7 +228,9 @@ async function checkWelcome() {
   try {
     const access = await token();
     const response = await fetch(
-      SB_URL + '/functions/v1/vertex-screen-welcome',
+      
+SB_URL + '/functions/v1/vertex-screen-welcom',
+
       {
         method: 'POST',
         headers: {
