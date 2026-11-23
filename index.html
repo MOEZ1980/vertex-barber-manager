@@ -680,8 +680,15 @@ if(a==='remind-client'){
    const result=await api('/functions/v1/vertex-arrival',{action:'create_link',booking_id:String(x.id)});
    if(!result.url||!result.url.startsWith('https://admin.vertexhammami.it/'))throw Error('Link promemoria non valido');
 
-const msg='✂️ VERTEX HAMMAMI\nCiao '+String(x.name||'')+'! Il tuo appuntamento è tra circa '+Math.ceil(remaining)+' minuti.\nConferma il tuo arrivo scegliendo una delle tre opzioni:\n'+result.url;
-   const whatsappUrl='https://wa.me/'+phone+'?text='+encodeURIComponent(msg);
+
+const codice=(()=>{let h=2166136261;for(const c of String(x.id)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return 'A'+String((h>>>0)%10000).padStart(4,'0')})();
+
+  
+   let msg='✂️ VERTEX HAMMAMI\nCiao '+String(x.name||'')+'! Il tuo appuntamento è tra circa '+Math.ceil(remaining)+' minuti.\nConferma il tuo arrivo scegliendo una delle tre opzioni:\n'+result.url;
+  
+msg += '\nCodice prenotazione: '+codice;
+
+    const whatsappUrl='https://wa.me/'+phone+'?text='+encodeURIComponent(msg);
    if(whatsappTab){whatsappTab.opener=null;whatsappTab.location.href=whatsappUrl;}else{window.location.href=whatsappUrl;}
  }catch(err){toast('Impossibile creare il link: '+err.message);}
 
