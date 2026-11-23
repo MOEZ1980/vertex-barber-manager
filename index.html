@@ -632,6 +632,8 @@ if(a==='vertex-arrived'){
  const x=fetchId(id);if(!x||x.status!=='confirmed')return toast('Disponibile solo per prenotazioni confermate');
  if(!confirm(`Confermi l'arrivo di ${x.name}?`))return;
  vertexAttendance[String(x.id)]={kind:'arrived',at:new Date().toISOString()};vertexAttendanceSave();
+void api('/functions/v1/vertex-screen-welcome',{action:'welcome',booking_id:x.id}).catch(e=>console.warn('Welcome TV:',e));
+
  render('preserve');toast('Cliente arrivato registrato su questo dispositivo');return;
 }
 if(a==='vertex-absent'){
