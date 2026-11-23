@@ -869,4 +869,142 @@ select:focus,input:focus,textarea:focus {outline:2px solid #caa85c !important;ou
 }
 </style>
 
+<!-- VERTEX HAMMAMI - NERO E ORO -->
+<style id="vertex-black-gold-safe">
+:root {
+  --bg:#050505 !important;
+  --panel:#101010 !important;
+  --border:#a48345 !important;
+  --gold:#eac36e !important;
+  --gold2:#d6aa54 !important;
+  --muted:#d0c6b3 !important;
+}
+
+html,body,.app {
+  background:#050505 !important;
+  color:#fff7e8 !important;
+}
+
+.app {
+  border-color:#a48345 !important;
+}
+
+.intro,.page,.box,.card,.stat,
+.booking,.booking-card,.setting,
+.topcontrols,.today label {
+  background:#101010 !important;
+  border-color:#8c703d !important;
+  box-shadow:none !important;
+}
+
+.stat {
+  background:#111111 !important;
+}
+
+.nav {
+  background:#050505 !important;
+  border-color:#a48345 !important;
+}
+
+.nav button {
+  background:transparent !important;
+  color:#f3d593 !important;
+}
+
+.nav button.active {
+  background:#eac36e !important;
+  color:#080808 !important;
+  border-color:#ffe2a0 !important;
+  box-shadow:none !important;
+}
+
+.nav button.active * {
+  color:#080808 !important;
+}
+
+.goldbtn,.secondary,
+button[data-act] {
+  background:#141414 !important;
+  color:#f5d894 !important;
+  border-color:#a48345 !important;
+  box-shadow:none !important;
+}
+
+.goldbtn.filled,
+button.is-selected,
+button.selected {
+  background:#eac36e !important;
+  color:#080808 !important;
+  border-color:#ffe2a0 !important;
+}
+
+.goldbtn.filled *,
+button.is-selected *,
+button.selected * {
+  color:#080808 !important;
+}
+
+input,select,textarea,
+.fields input,.fields select,
+.topcontrols input,.topcontrols select {
+  background:#101010 !important;
+  color:#fff7e8 !important;
+  border-color:#997a43 !important;
+}
+
+input:focus,select:focus,textarea:focus {
+  outline:2px solid #eac36e !important;
+}
+
+.message-brand,.message-content,
+.badge,.toast,.pill {
+  background:#121212 !important;
+  border-color:#997a43 !important;
+}
+
+#vertexLogin,
+#vertexLogin .login-box,
+#vertexLogin input {
+  background:#080808 !important;
+  border-color:#997a43 !important;
+  color:#fff7e8 !important;
+}
+
+#vertexLogin button {
+  background:#eac36e !important;
+  color:#080808 !important;
+}
+</style>
+
+<!-- Posiziona il cursore su Nome cliente -->
+<script>
+(() => {
+  const content = document.getElementById('content');
+  if (!content) return;
+
+  function focusCustomerName() {
+    const form = document.getElementById('bookingForm');
+    const name = form?.querySelector('input[name="name"]');
+    if (!name || name.dataset.vertexFocused) return;
+
+    name.dataset.vertexFocused = '1';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!name.isConnected) return;
+        name.focus({preventScroll:true});
+        name.scrollIntoView({
+          behavior:'instant',
+          block:'center'
+        });
+      });
+    });
+  }
+
+  new MutationObserver(focusCustomerName)
+    .observe(content, {childList:true});
+
+  focusCustomerName();
+})();
+</script>
+
 </body></html>
