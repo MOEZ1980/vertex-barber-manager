@@ -268,7 +268,9 @@ async function checkWelcome() {
 
     for (const [value, size, color] of [
       ['✂ VERTEX HAMMAMI', 'clamp(22px,3vw,48px)', '#e6bb6a'],
-      ['BENVENUTO!', 'clamp(44px,8vw,120px)', '#ffffff'],
+      
+['BENVENUTO' + (event.customer_name ? ' ' + String(event.customer_name).toUpperCase() : '') + '!', 'clamp(44px,8vw,120px)', '#ffffff'],
+
       ['Siamo felici di averti qui.', 'clamp(20px,3vw,42px)', '#ffffff'],
       [code, 'clamp(60px,10vw,150px)', '#e6bb6a'],
       ['Accomodati, saremo subito da te.', 'clamp(18px,3vw,40px)', '#ffffff']
