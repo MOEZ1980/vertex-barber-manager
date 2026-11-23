@@ -247,7 +247,9 @@ async function checkWelcome() {
     if (!event || Number(event.id) <= lastWelcomeEvent) return;
 
     lastWelcomeEvent = Number(event.id);
-    if (Date.now() - new Date(event.created_at).getTime() > 15000) return;
+    
+if (Date.now() - new Date(event.created_at).getTime() > 60000) return;
+
 
     const code = String(event.booking_code || '');
     if (!/^A[0-9]{4}$/.test(code)) return;
