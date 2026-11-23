@@ -12,3 +12,111 @@
  .edit-action{padding:8px 14px;font-size:11px;border-color:#8b7442;background:#332c1c;color:#f1d891;font-weight:700}.client-actions{grid-column:1/-1;align-items:center}.whatsapp-action{border-color:#315b3a;background:#1d2a20;color:#bfe0b8}
 .brand-mark{width:54px;height:38px;border:0;border-radius:0;background:transparent;overflow:hidden}.brand-logo{display:block;width:100%;height:100%;object-fit:contain}.login-card .login-emblem{display:block;width:164px;height:92px;margin:0 auto 15px;border:0;border-radius:0;background:transparent;object-fit:contain}.notification-panel{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:16px 0}.notification-panel h2{font:700 14px Manrope;margin:0 0 5px}.notification-panel .muted{font-size:10px;margin:0}.notification-panel .booking-actions{margin:0;flex-shrink:0}.notification-panel button{min-height:34px}
 @media(max-width:700px){.notification-panel{align-items:flex-start;flex-direction:column;gap:8px}.notification-panel .booking-actions{margin:0}.brand-mark{width:52px;height:36px}}
+
+/* VERTEX HAMMAMI — BLACK & GOLD THEME */
+/* Solo colori, nessuna funzione modificata */
+
+:root {
+  color-scheme: dark;
+  --bg: #050505;
+  --surface: #101010;
+  --surface-2: #171717;
+  --line: #7b602f;
+  --text: #fff8eb;
+  --muted: #c6bca8;
+  --gold: #edc56d;
+  --gold-light: #ffe5a2;
+  --green: #c9b074;
+}
+
+body {
+  background: #050505 !important;
+  color: #fff8eb !important;
+}
+
+.rail,
+.mobile-nav {
+  background: #080808 !important;
+  border-color: #7b602f !important;
+}
+
+.topbar,
+.panel,
+.stat-card,
+.login-card,
+.booking-card,
+.client-row,
+.edit-dialog,
+.notification-panel {
+  background: #101010 !important;
+  border-color: #806435 !important;
+  color: #fff8eb !important;
+}
+
+.notice,
+.booking-card.blocked,
+.calendar-cell,
+.filter-label select,
+.search-box,
+.login-card input,
+.block-form input,
+.edit-dialog input,
+.add-barber-form input {
+  background: #171717 !important;
+  color: #fff8eb !important;
+  border-color: #806435 !important;
+}
+
+.calendar-cell.chosen,
+.rail-link.selected {
+  background: #2c2416 !important;
+  color: #ffe5a2 !important;
+}
+
+.gold-button {
+  background: #edc56d !important;
+  color: #080808 !important;
+  border: 1px solid #ffe5a2 !important;
+  text-shadow: none !important;
+}
+
+.gold-button *,
+.gold-button:hover,
+.gold-button:focus {
+  color: #080808 !important;
+}
+
+.booking-action,
+.refresh-button,
+.calendar-nav button,
+.rail-link,
+.edit-action {
+  background: #101010 !important;
+  color: #ffe5a2 !important;
+  border-color: #967744 !important;
+}
+
+.booking-action:hover,
+.refresh-button:hover,
+.calendar-nav button:hover,
+.edit-action:hover {
+  background: #edc56d !important;
+  color: #080808 !important;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #ffe5a2 !important;
+  outline-offset: 2px;
+}
+
+.stat-card strong,
+.value,
+.count-pill {
+  color: #ffe5a2 !important;
+}
+
+.mobile-nav button.selected {
+  color: #ffe5a2 !important;
+}
